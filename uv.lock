@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 
 [[package]]
@@ -419,6 +419,7 @@ name = "odoo-config"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "typer" },
 ]
 
@@ -438,6 +439,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0" },
     { name = "typer", specifier = ">=0.20" },
     { name = "uv", marker = "extra == 'build'", specifier = "~=0.7.12" },
 ]

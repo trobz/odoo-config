@@ -219,3 +219,6 @@ __marimo__/
 # VIM files
 .*.sw?
 .*.un~
+
+# Generated odoo config files (keep the schema)
+*.conf

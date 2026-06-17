@@ -1,0 +1,310 @@
+# Schema for odoo.conf generation, seeded to match remoteoi's server.conf 1:1
+# while adapting legacy keys per Odoo version.
+#
+# Per-option keys:
+#   default      value used when not provided (typed)
+#   mandatory    always emitted in `explicit`/`all` output
+#   comment      written as a `;` line above the option
+#   commented    in `all` output, emit the line commented unless explicitly given
+#   section      target ini section (default "options")
+#   min_version  option only valid from this Odoo version up
+#   max_version  option only valid up to this Odoo version
+#
+# `mandatory` marks the trobz baseline: every option remoteoi's server.conf
+# writes uncommented. Commented examples (db_name, smtp_*) stay optional.
+
+[options.admin_passwd]
+mandatory = true
+comment = "Master password for database operations. Keep this file secure."
+
+[options.without_demo]
+default = "True"
+mandatory = true
+
+[options.verbose]
+default = "False"
+mandatory = true
+
+[options.db_user]
+mandatory = true
+
+[options.db_password]
+mandatory = true
+
+[options.db_name]
+default = "False"
+commented = true
+comment = "Uncomment after the database is created to enable module auto-check."
+
+[options.db_host]
+default = "localhost"
+mandatory = true
+
+[options.db_port]
+default = 5432
+mandatory = true
+
+[options.db_maxconn]
+default = 64
+mandatory = true
+
+[options.db_template]
+default = "template1"
+mandatory = true
+
+[options.addons_path]
+comment = "Comma-separated list of addons directories."
+
+[options.data_dir]
+mandatory = true
+
+# Legacy networking (Odoo <= 10); replaced by http_* below.
+[options.interface]
+default = ""
+mandatory = true
+max_version = "10.0"
+
+[options.netrpc]
+default = "False"
+mandatory = true
+max_version = "9.0"
+
+[options.xmlrpcs]
+default = "False"
+mandatory = true
+max_version = "10.0"
+
+[options.xmlrpc]
+default = "True"
+mandatory = true
+max_version = "10.0"
+
+[options.xmlrpc_interface]
+default = ""
+mandatory = true
+max_version = "10.0"
+
+[options.xmlrpc_port]
+default = 8069
+mandatory = true
+max_version = "10.0"
+
+[options.soap]
+default = "False"
+mandatory = true
+max_version = "9.0"
+
+# Modern networking. Version bounds for these are derived by the generator from
+# Odoo's config.py (present 13-19); only the pre-13 legacy options above need
+# hand-set bounds, since the miner can't see versions it has no checkout for.
+[options.http_interface]
+default = ""
+
+[options.http_port]
+default = 8069
+mandatory = true
+
+[options.longpolling_port]
+default = 8072
+
+[options.gevent_port]
+default = 8072
+
+[options.proxy_mode]
+default = "True"
+mandatory = true
+
+[options.list_db]
+default = "True"
+mandatory = true
+
+[options.reportgz]
+default = "False"
+mandatory = true
+
+[options.translate_modules]
+default = "['all']"
+mandatory = true
+
+[options.unaccent]
+default = "True"
+mandatory = true
+
+[options.logfile]
+default = ""
+mandatory = true
+
+[options.syslog]
+default = "False"
+mandatory = true
+
+[options.logrotate]
+default = "False"
+mandatory = true
+
+[options.log_level]
+default = "info"
+mandatory = true
+
+[options.is_production_instance]
+default = "False"
+mandatory = true
+comment = "False routes all outbound email to the catch-all test address."
+
+[options.running_env]
+default = "test"
+mandatory = true
+comment = "Some modules abort loading if server_environment running_env is unset."
+
+[options.workers]
+default = 4
+mandatory = true
+
+[options.server_wide_modules]
+default = "base,web"
+mandatory = true
+
+[options.max_cron_threads]
+default = 1
+mandatory = true
+comment = "0 disables scheduled actions (non-production); 2 on production."
+
+[options.limit_memory_hard]
+default = 2147483648
+mandatory = true
+
+[options.limit_memory_soft]
+default = 1342177280
+mandatory = true
+
+[options.limit_request]
+mandatory = true
+
+[options.limit_time_cpu]
+default = 3600
+mandatory = true
+
+[options.limit_time_real]
+default = 3600
+mandatory = true
+
+[options.limit_time_real_cron]
+default = 7200
+mandatory = true
+
+# Outbound email (examples; commented unless explicitly set).
+[options.smtp_server]
+default = "localhost"
+commented = true
+
+[options.smtp_port]
+default = 25
+commented = true
+
+[options.smtp_ssl]
+default = "False"
+commented = true
+
+[options.smtp_user]
+default = ""
+commented = true
+
+[options.smtp_password]
+default = ""
+commented = true
+
+[options.email_from]
+default = ""
+commented = true
+
+# Sentry (requires the sentry module).
+[options.sentry_dsn]
+default = ""
+mandatory = true
+
+[options.sentry_enabled]
+default = "False"
+mandatory = true
+
+[options.sentry_logging_level]
+default = "warn"
+mandatory = true
+
+[options.sentry_exclude_loggers]
+default = "werkzeug"
+mandatory = true
+
+[options.sentry_ignore_exceptions]
+default = "odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm"
+mandatory = true
+
+[options.sentry_processors]
+default = "raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor"
+mandatory = true
+
+[options.sentry_transport]
+default = "threaded"
+mandatory = true
+
+[options.sentry_include_context]
+default = "true"
+mandatory = true
+
+[options.sentry_environment]
+default = ""
+mandatory = true
+
+[options.sentry_auto_log_stacks]
+default = "false"
+mandatory = true
+
+# ir.config_parameter section.
+[options."report.url"]
+default = "http://localhost:8069"
+mandatory = true
+section = "ir.config_parameter"
+
+[options."web.max_file_upload_size"]
+default = 268435456
+mandatory = true
+section = "ir.config_parameter"
+
+[options."ribbon.background.color"]
+default = "rgba(255,0,0,.6)"
+mandatory = true
+section = "ir.config_parameter"
+
+[options."ribbon.name"]
+default = ""
+mandatory = true
+section = "ir.config_parameter"
+
+[options."ribbon.color"]
+default = "#f0f0f0"
+mandatory = true
+section = "ir.config_parameter"
+
+[options."database.expiration_reason"]
+default = "demo"
+mandatory = true
+section = "ir.config_parameter"
+
+[options."database.expiration_date"]
+default = "2099-12-31 12:34:56"
+mandatory = true
+section = "ir.config_parameter"
+
+# Presets layer concrete overrides on top of the version defaults.
+
+[presets.integration]
+max_cron_threads = 0
+is_production_instance = "False"
+
+[presets.staging]
+max_cron_threads = 0
+is_production_instance = "False"
+
+[presets.production]
+max_cron_threads = 2
+is_production_instance = "True"
+list_db = "False"

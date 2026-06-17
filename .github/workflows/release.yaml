@@ -21,7 +21,7 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
 
     steps:
-      
+
       - name: Checkout Repository on Release Branch
         uses: actions/checkout@v6
         with:
@@ -38,5 +38,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-
-
