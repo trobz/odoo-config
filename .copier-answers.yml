@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v1.4.1
+_src_path: https://github.com/trobz/trobz-python-template.git
+author_email: contact@trobz.com
+author_username: trobz
+enable_docs_site: false
+enable_github_action: true
+package_name: odoo_config
+project_description: Generate, compare and update Odoo config files per version.
+project_name: odoo-config
+project_type: cli
+publish_to_pypi: false
+repository_name: odoo-config
+repository_namespace: trobz
