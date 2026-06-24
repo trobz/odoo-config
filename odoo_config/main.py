@@ -27,6 +27,13 @@ _EXTRA = {"allow_extra_args": True, "ignore_unknown_options": True}
 # Flags shared by create and update.
 ConfigOpt = Annotated[Path, typer.Option("-c", "--config")]
 PresetOpt = Annotated[str | None, typer.Option("--preset")]
+InstanceDirOpt = Annotated[
+    Path | None,
+    typer.Option(
+        "--instance-dir",
+        help="Instance home directory; derives data_dir, logfile and sentry_odoo_dir (lowest priority).",
+    ),
+]
 FromEnvOpt = Annotated[bool, typer.Option("--from-env")]
 EnvPrefixOpt = Annotated[str | None, typer.Option("--env-prefix")]
 FormatOpt = Annotated[
@@ -39,6 +46,19 @@ FormatOpt = Annotated[
         ),
     ),
 ]
+
+
+def _instance_dir_defaults(instance_dir: Path | str | None) -> dict:
+    """Derive path-dependent option defaults from the instance home directory."""
+    if not instance_dir:
+        return {}
+
+    d = Path(instance_dir)
+    return {
+        "data_dir": str(d / "var" / "storage"),
+        "logfile": str(d / "log" / "server.log"),
+        "sentry_odoo_dir": str(d / "odoo"),
+    }
 
 
 def parse_overrides(args):
@@ -90,7 +110,8 @@ def _generate(ctx, sources, secmap):
     env = collect_env(schema, p["env_prefix"]) if p["from_env"] else {}
     overrides = parse_overrides(ctx.args)
 
-    given = resolve_given(presets, p["preset"], [sources], env, overrides)
+    instance_dir_vals = _instance_dir_defaults(p.get("instance_dir"))
+    given = resolve_given(presets, p["preset"], [instance_dir_vals, sources], env, overrides)
     built = build(schema, p["version"], p["output_format"], given)
     # ctx.params holds click's pre-conversion values, so config is still a str.
     Path(p["config"]).write_text(render(built, schema, given, secmap))
@@ -102,6 +123,7 @@ def create(
     version: Annotated[str, typer.Option("--version", help="Target Odoo version, e.g. 19.0")],
     config: ConfigOpt = Path("odoo.conf"),
     preset: PresetOpt = None,
+    instance_dir: InstanceDirOpt = None,
     from_: Annotated[list[str] | None, typer.Option("--from", help="Source config glob(s); additive")] = None,
     from_env: FromEnvOpt = False,
     env_prefix: EnvPrefixOpt = None,
@@ -119,6 +141,7 @@ def update(
     config: ConfigOpt = Path("odoo.conf"),
     version: Annotated[str | None, typer.Option("--version")] = None,
     preset: PresetOpt = None,
+    instance_dir: InstanceDirOpt = None,
     from_env: FromEnvOpt = False,
     env_prefix: EnvPrefixOpt = None,
     output_format: FormatOpt = "bare",

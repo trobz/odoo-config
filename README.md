@@ -57,6 +57,10 @@ The schema is two files, merged at runtime by `schema.load_schema()`:
   presets, and non-core extras (`sentry_*`, legacy networking, etc.). Edit this
   freely; changes take effect immediately, **no regeneration needed**.
 
+  **Dotted keys in presets** (e.g. `ir.config_parameter` options like `ribbon.name`) must be
+  quoted in TOML so the dot is treated as part of the name, not a sub-table separator:
+  `"ribbon.name" = ""` — not `ribbon.name = ""`.
+
 Overlay values win. A pinned overlay `default` forces that value on every
 version (the mined `by_version` is dropped); to keep per-version trobz values,
 add a `[options.<key>.by_version]` table in the overlay.
