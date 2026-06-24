@@ -35,6 +35,9 @@ def _merge(core, ov_opts):
         if "default" not in meta and c.get("default") is not None:
             meta["default"] = c["default"]
 
+        if "help" not in meta and "help" in c:
+            meta["help"] = c["help"]
+
         if not overlay_pins_default and "by_version" not in meta and "by_version" in c:
             meta["by_version"] = c["by_version"]
 
@@ -219,6 +222,44 @@ def render(built, schema, given, secmap=None):
             lines.append(line)
 
     return "\n".join(lines) + "\n"
+
+
+def drop_defaults(values, schema, version):
+    """Drop keys whose value equals the schema default for the version (compact).
+
+    Unknown keys (absent from the schema) are kept — we have no default to
+    compare them against.
+    """
+    out = {}
+    for key, value in values.items():
+        meta = schema.get(key)
+        if meta is not None and canon(value) == canon(default_for(meta, version)):
+            continue
+
+        out[key] = value
+
+    return out
+
+
+def drop_outdated(values, schema, version):
+    """Drop keys unknown to the schema or invalid for the version (clean)."""
+    return {key: value for key, value in values.items() if key in schema and valid_for_version(schema[key], version)}
+
+
+def explain_rows(values, schema, version):
+    """(key, value, help, default) for each key present in `values`.
+
+    Help is odoo's option description from the vendored snapshot (options.toml);
+    an overlay `comment`, when present, overrides it as a trobz-specific note.
+    """
+    rows = []
+    for key, value in values.items():
+        meta = schema.get(key, {})
+        help_text = meta.get("comment") or meta.get("help") or ""
+        default = default_for(meta, version) if meta else ""
+        rows.append((key, value, help_text, default))
+
+    return rows
 
 
 def resolve_given(presets, preset, sources, env, overrides):

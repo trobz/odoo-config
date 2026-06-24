@@ -22,26 +22,16 @@ and the schema with `uv run python scripts/build_schema.py` (see Schema below).
 
 ## Commands
 
-- `create` — generate a new config for a target version.
-- `compare` — show a value comparison table across files, versions or presets.
-- `update` — update a config in place, preserving existing keys and sections.
+See **[CLI.md](CLI.md)** — generated from the code, the source of truth — or
+`odoo-config <command> --help` for every command and flag (including the
+`--output-format` values).
 
-The full flag reference is generated from the code — see [CLI.md](CLI.md) or
-`odoo-config <command> --help`.
+Two behaviours the flag list can't express:
 
-Beyond the documented flags, **any** `--<key>=<value>` overrides a single
-option, e.g. `--max-cron-threads=0`; keys map to config options with dashes
-turned into underscores.
-
-## Output formats (`--output-format`)
-
-- **bare** — only the keys that were given (preset / `--from` / env / overrides).
-- **explicit** — given keys plus all mandatory keys (filled from defaults). Default.
-- **all** — every option valid for the version; optional examples emitted
-  commented. Reproduces the full `server.conf` for that version.
-
-Merge precedence, low to high: preset → `--from` files → environment → `--*`
-overrides.
+- **Ad-hoc overrides:** beyond the documented flags, **any** `--<key>=<value>`
+  overrides a single option, e.g. `--max-cron-threads=0` (dashes → underscores).
+- **Merge precedence**, low to high: preset → `--from` files → environment →
+  `--*` overrides.
 
 ## Schema
 

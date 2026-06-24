@@ -19,6 +19,10 @@ $ odoo-config [OPTIONS] COMMAND [ARGS]...
 * `create`: Create a new config file for the target...
 * `update`: Update a config file in place from the...
 * `compare`: Show a comparison table of values across...
+* `compact`: Remove options whose value equals the...
+* `expand`: Add every option valid for the version,...
+* `clean`: Remove options unknown to the schema or...
+* `explain`: Show each option&#x27;s value, help and default.
 
 ## `odoo-config create`
 
@@ -38,7 +42,7 @@ $ odoo-config create [OPTIONS]
 * `--from TEXT`: Source config glob(s); additive
 * `--from-env`
 * `--env-prefix TEXT`
-* `--output-format TEXT`: [default: explicit]
+* `--output-format TEXT`: bare = only given keys; explicit = given + mandatory keys; all = every option valid for the version (optional ones commented).  [default: explicit]
 * `--help`: Show this message and exit.
 
 ## `odoo-config update`
@@ -58,7 +62,7 @@ $ odoo-config update [OPTIONS]
 * `--preset TEXT`
 * `--from-env`
 * `--env-prefix TEXT`
-* `--output-format TEXT`: [default: bare]
+* `--output-format TEXT`: bare = only given keys; explicit = given + mandatory keys; all = every option valid for the version (optional ones commented).  [default: bare]
 * `--help`: Show this message and exit.
 
 ## `odoo-config compare`
@@ -89,4 +93,86 @@ $ odoo-config compare [OPTIONS] [FILES]...
 * `--version TEXT`: Version(s), comma-separated
 * `--preset TEXT`: Preset(s), comma-separated
 * `-a, --all`: Show every option, not just differing rows
+* `--help`: Show this message and exit.
+
+## `odoo-config compact`
+
+Remove options whose value equals the version default.
+
+**Usage**:
+
+```console
+$ odoo-config compact [OPTIONS] [CONFIG]
+```
+
+**Arguments**:
+
+* `[CONFIG]`: Config file to transform  [default: odoo.conf]
+
+**Options**:
+
+* `--version TEXT`: Odoo version for defaults/validity; newest if omitted
+* `--diff`: Show only the keys the action adds/removes, as a table, not the full config
+* `-i, --inplace`: Write the result back to the input file
+* `--help`: Show this message and exit.
+
+## `odoo-config expand`
+
+Add every option valid for the version, keeping existing values.
+
+**Usage**:
+
+```console
+$ odoo-config expand [OPTIONS] [CONFIG]
+```
+
+**Arguments**:
+
+* `[CONFIG]`: Config file to transform  [default: odoo.conf]
+
+**Options**:
+
+* `--version TEXT`: Odoo version for defaults/validity; newest if omitted
+* `--diff`: Show only the keys the action adds/removes, as a table, not the full config
+* `-i, --inplace`: Write the result back to the input file
+* `--help`: Show this message and exit.
+
+## `odoo-config clean`
+
+Remove options unknown to the schema or invalid for the version.
+
+**Usage**:
+
+```console
+$ odoo-config clean [OPTIONS] [CONFIG]
+```
+
+**Arguments**:
+
+* `[CONFIG]`: Config file to transform  [default: odoo.conf]
+
+**Options**:
+
+* `--version TEXT`: Odoo version for defaults/validity; newest if omitted
+* `--diff`: Show only the keys the action adds/removes, as a table, not the full config
+* `-i, --inplace`: Write the result back to the input file
+* `--help`: Show this message and exit.
+
+## `odoo-config explain`
+
+Show each option&#x27;s value, help and default.
+
+**Usage**:
+
+```console
+$ odoo-config explain [OPTIONS] [CONFIG]
+```
+
+**Arguments**:
+
+* `[CONFIG]`: Config file to transform  [default: odoo.conf]
+
+**Options**:
+
+* `--version TEXT`: Odoo version for defaults/validity; newest if omitted
 * `--help`: Show this message and exit.

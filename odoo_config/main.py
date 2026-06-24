@@ -10,6 +10,9 @@ from .schema import (
     build,
     canon,
     collect_env,
+    drop_defaults,
+    drop_outdated,
+    explain_rows,
     load_schema,
     overlay_overrides,
     read_conf,
@@ -26,7 +29,16 @@ ConfigOpt = Annotated[Path, typer.Option("-c", "--config")]
 PresetOpt = Annotated[str | None, typer.Option("--preset")]
 FromEnvOpt = Annotated[bool, typer.Option("--from-env")]
 EnvPrefixOpt = Annotated[str | None, typer.Option("--env-prefix")]
-FormatOpt = Annotated[str, typer.Option("--output-format")]
+FormatOpt = Annotated[
+    str,
+    typer.Option(
+        "--output-format",
+        help=(
+            "bare = only given keys; explicit = given + mandatory keys; "
+            "all = every option valid for the version (optional ones commented)."
+        ),
+    ),
+]
 
 
 def parse_overrides(args):
@@ -240,6 +252,104 @@ def _print_table(columns, file_names=(), overrides=frozenset(), show_all=False):
     console.print(table)
     if marked:
         console.print("\n[magenta]*[/magenta] = default overridden by the trobz overlay (differs from odoo)")
+
+
+# Shared flags for the transform actions (compact / expand / clean).
+ActionConfig = Annotated[Path, typer.Argument(help="Config file to transform")]
+ActionVersion = Annotated[
+    str | None,
+    typer.Option("--version", help="Odoo version for defaults/validity; newest if omitted"),
+]
+DiffOpt = Annotated[
+    bool,
+    typer.Option("--diff", help="Show only the keys the action adds/removes, as a table, not the full config"),
+]
+InplaceOpt = Annotated[bool, typer.Option("-i", "--inplace", help="Write the result back to the input file")]
+
+
+def _read_required(config):
+    if not config.is_file():
+        raise typer.BadParameter(f"file not found: {config}")  # noqa: TRY003
+
+    return read_conf(config)
+
+
+def _output(config, original, secmap, result, schema, action, diff, inplace):
+    """Render `result` to stdout, as a diff table, or back into the file in place.
+
+    `action` names the transform (compact/expand/clean) and labels the diff column.
+    """
+    if diff:
+        _print_table({config.name: original, action: result}, file_names={config.name, action})
+        return
+
+    text = render(result, schema, result, secmap)
+    if not inplace:
+        typer.echo(text, nl=False)
+        return
+
+    config.write_text(text)
+    typer.echo(f"Wrote {config}")
+
+
+@app.command()
+def compact(
+    config: ActionConfig = Path("odoo.conf"),
+    version: ActionVersion = None,
+    diff: DiffOpt = False,
+    inplace: InplaceOpt = False,
+):
+    """Remove options whose value equals the version default."""
+    schema, _ = load_schema()
+    values, secmap = _read_required(config)
+    _output(config, values, secmap, drop_defaults(values, schema, version), schema, "compact", diff, inplace)
+
+
+@app.command()
+def expand(
+    config: ActionConfig = Path("odoo.conf"),
+    version: ActionVersion = None,
+    diff: DiffOpt = False,
+    inplace: InplaceOpt = False,
+):
+    """Add every option valid for the version, keeping existing values."""
+    schema, _ = load_schema()
+    values, secmap = _read_required(config)
+    _output(config, values, secmap, build(schema, version, "all", values), schema, "expand", diff, inplace)
+
+
+@app.command()
+def clean(
+    config: ActionConfig = Path("odoo.conf"),
+    version: ActionVersion = None,
+    diff: DiffOpt = False,
+    inplace: InplaceOpt = False,
+):
+    """Remove options unknown to the schema or invalid for the version."""
+    schema, _ = load_schema()
+    values, secmap = _read_required(config)
+    _output(config, values, secmap, drop_outdated(values, schema, version), schema, "clean", diff, inplace)
+
+
+@app.command()
+def explain(config: ActionConfig = Path("odoo.conf"), version: ActionVersion = None):
+    """Show each option's value, help and default."""
+    from rich import box
+    from rich.console import Console
+    from rich.markup import escape
+    from rich.table import Table
+
+    schema, _ = load_schema()
+    values, _ = _read_required(config)
+
+    table = Table(box=box.ROUNDED, show_header=True, header_style="bold cyan")
+    for col in ("setting", "value", "help", "default"):
+        table.add_column(col, overflow="fold")
+
+    for key, value, help_text, default in explain_rows(values, schema, version):
+        table.add_row(*(escape(str(c)) for c in (key, value, help_text, default)))
+
+    Console().print(table)
 
 
 if __name__ == "__main__":

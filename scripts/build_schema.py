@@ -129,10 +129,15 @@ def _dest_from_args(call):
 
 
 def extract(path):
-    """Return {dest: default-or-SENTINEL} of config-file options in one config.py."""
+    """Return ({dest: default-or-SENTINEL}, {dest: help}) for one config.py.
+
+    Help is captured best-effort: only plain string literals (whitespace
+    collapsed); f-strings / concatenations are skipped.
+    """
     tree = ast.parse(path.read_text())
     skip = SKIP | _blacklist(tree)
     opts = {k: v for k, v in _options_dict(tree).items() if k not in skip}
+    helps = {}
 
     for n in ast.walk(tree):
         if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "add_option"):
@@ -156,6 +161,9 @@ def extract(path):
         if action in ("store_true", "store_false") and "my_default" not in kw:
             continue
 
+        if "help" in kw and isinstance(h := _literal(kw["help"]), str):
+            helps[dest] = " ".join(h.split())
+
         if "my_default" in kw:
             opts[dest] = _literal(kw["my_default"])
         elif "default" in kw:
@@ -163,7 +171,7 @@ def extract(path):
         else:
             opts.setdefault(dest, _SENTINEL)
 
-    return opts
+    return opts, helps
 
 
 def _norm(v):
@@ -172,8 +180,10 @@ def _norm(v):
 
 
 def core_schema(odoo, versions):
-    """Merge per-version extractions into {dest: {default, min/max_version, by_version?}}."""
-    by_ver = {v: extract(odoo / v / "odoo/tools/config.py") for v in versions}
+    """Merge per-version extractions into {dest: {default, help?, min/max_version, by_version?}}."""
+    extracted = {v: extract(odoo / v / "odoo/tools/config.py") for v in versions}
+    by_ver = {v: opts for v, (opts, _h) in extracted.items()}
+    helps = {v: h for v, (_o, h) in extracted.items()}
     out = {}
     for dest in set().union(*by_ver.values()):
         present = [v for v in versions if dest in by_ver[v]]
@@ -184,6 +194,12 @@ def core_schema(odoo, versions):
             # Odoo stores some defaults as Python lists (addons_path, log_handler);
             # config files write them comma-joined, not as `[...]` repr.
             meta["default"] = ",".join(map(str, default)) if isinstance(default, list) else default
+
+        # Help from the newest version that documents it (descriptions evolve).
+        for v in reversed(versions):
+            if dest in helps[v]:
+                meta["help"] = helps[v][dest]
+                break
 
         if versions[0] not in present:
             meta["min_version"] = min(present)
@@ -224,7 +240,7 @@ def emit(options):
     for key in sorted(options):
         meta = options[key]
         lines.append(f"[options.{_toml_key(key)}]")
-        for field in ("default", "min_version", "max_version"):
+        for field in ("default", "help", "min_version", "max_version"):
             if field in meta:
                 lines.append(f"{field} = {_toml_value(meta[field])}")
         lines.append("")

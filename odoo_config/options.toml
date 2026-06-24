@@ -5,6 +5,7 @@
 
 [options.addons_path]
 default = ""
+help = "specify additional addons paths (separated by commas)."
 
 [options.admin_passwd]
 default = "admin"
@@ -13,78 +14,100 @@ default = "admin"
 default = ","
 
 [options.data_dir]
+help = "Directory where to store Odoo data"
 
 [options.db_app_name]
 default = "odoo-{pid}"
+help = "specify the application name in the database, {pid} is substituted by the process pid"
 min_version = "19.0"
 
 [options.db_host]
 default = ""
+help = "specify the database host"
 
 [options.db_maxconn]
 default = 64
+help = "specify the maximum number of physical connections to PostgreSQL"
 
 [options.db_maxconn_gevent]
 default = false
+help = "specify the maximum number of physical connections to PostgreSQL specifically for the gevent worker"
 min_version = "17.0"
 
 [options.db_name]
 default = ""
+help = "database(s) used when installing or updating modules."
 
 [options.db_password]
 default = ""
+help = "specify the database password"
 
 [options.db_port]
 default = false
+help = "specify the database port"
 
 [options.db_replica_host]
 default = false
+help = "specify the replica host"
 min_version = "18.0"
 
 [options.db_replica_port]
 default = false
+help = "specify the replica port"
 min_version = "18.0"
 
 [options.db_sslmode]
 default = "prefer"
+help = "specify the database ssl connection mode (see PostgreSQL documentation)"
 
 [options.db_template]
 default = "template0"
+help = "specify a custom database template to create a new database"
 
 [options.db_user]
 default = ""
+help = "specify the database user name"
 
 [options.dbfilter]
 default = ""
+help = "Regular expressions for filtering available databases for Web UI. The expression can use %d (domain) and %h (host) placeholders."
 
 [options.email_from]
 default = ""
+help = "specify the SMTP email address for sending email"
 
 [options.from_filter]
 default = ""
+help = "specify for which email address the SMTP configuration can be used"
 min_version = "15.0"
 
 [options.geoip_city_db]
 default = "/usr/share/GeoIP/GeoLite2-City.mmdb"
+help = "Absolute path to the GeoIP City database file."
 min_version = "17.0"
 
 [options.geoip_country_db]
 default = "/usr/share/GeoIP/GeoLite2-Country.mmdb"
+help = "Absolute path to the GeoIP Country database file."
 min_version = "17.0"
 
 [options.geoip_database]
 default = "/usr/share/GeoIP/GeoLite2-City.mmdb"
+help = "Absolute path to the GeoIP database file."
 max_version = "16.0"
 
 [options.gevent_port]
 default = 8072
+help = "Listen port for the gevent worker"
 min_version = "16.0"
 
 [options.http_enable]
 default = true
+help = "Disable the HTTP and Longpolling services entirely"
 
 [options.http_interface]
 default = "0.0.0.0"
+help = "Listen interface address for HTTP services."
 
 [options.http_interface.by_version]
 "13.0" = ""
@@ -97,23 +120,29 @@ default = "0.0.0.0"
 
 [options.http_port]
 default = 8069
+help = "Listen port for the main HTTP service"
 
 [options.limit_memory_hard]
 default = 2684354560
+help = "Maximum allowed virtual memory per worker (in bytes), when reached, any memory allocation will fail (default 2560MiB)."
 
 [options.limit_memory_hard_gevent]
 default = false
+help = "Maximum allowed virtual memory per gevent worker (in bytes), when reached, any memory allocation will fail. Defaults to `--limit-memory-hard`."
 min_version = "18.0"
 
 [options.limit_memory_soft]
 default = 2147483648
+help = "Maximum allowed virtual memory per worker (in bytes), when reached the worker be reset after the current request (default 2048MiB)."
 
 [options.limit_memory_soft_gevent]
 default = false
+help = "Maximum allowed virtual memory per gevent worker (in bytes), when reached the worker will be reset after the current request. Defaults to `--limit-memory-soft`."
 min_version = "18.0"
 
 [options.limit_request]
 default = 65536
+help = "Maximum number of request to be processed per worker (default 65536)."
 
 [options.limit_request.by_version]
 "13.0" = 8192
@@ -126,44 +155,56 @@ default = 65536
 
 [options.limit_time_cpu]
 default = 60
+help = "Maximum allowed CPU time per request (default 60)."
 
 [options.limit_time_real]
 default = 120
+help = "Maximum allowed Real time per request (default 120)."
 
 [options.limit_time_real_cron]
 default = -1
+help = "Maximum allowed Real time per cron job. (default: --limit-time-real). Set to 0 for no limit."
 
 [options.limit_time_worker_cron]
 default = 0
+help = "Maximum time a cron thread/worker stays alive before it is restarted. Set to 0 to disable. (default: 0)"
 min_version = "16.0"
 
 [options.list_db]
 default = true
+help = "Disable the ability to obtain or view the list of databases. Also disable access to the database manager and selector, so be sure to set a proper --database parameter first"
 
 [options.log_db]
 default = ""
+help = "Logging database"
 
 [options.log_db_level]
 default = "warning"
+help = "Logging database level"
 
 [options.log_handler]
 default = ":INFO"
+help = "shortcut for --log-handler=odoo.sql_db:DEBUG"
 
 [options.log_level]
 default = "info"
 
 [options.logfile]
 default = ""
+help = "file where the server log will be stored"
 
 [options.longpolling_port]
 default = 8072
+help = "Listen port for the longpolling HTTP service"
 max_version = "15.0"
 
 [options.max_cron_threads]
 default = 2
+help = "Maximum number of threads processing concurrently cron jobs (default 2)."
 
 [options.osv_memory_age_limit]
 default = false
+help = "Deprecated alias to the transient-age-limit option"
 max_version = "16.0"
 
 [options.osv_memory_age_limit.by_version]
@@ -174,6 +215,7 @@ max_version = "16.0"
 
 [options.osv_memory_count_limit]
 default = 0
+help = "Force a limit on the maximum number of records kept in the virtual osv_memory tables. By default there is no limit."
 
 [options.osv_memory_count_limit.by_version]
 "13.0" = false
@@ -186,62 +228,79 @@ default = 0
 
 [options.pg_path]
 default = ""
+help = "specify the pg executable path"
 
 [options.pidfile]
 default = ""
+help = "file where the server pid will be stored"
 
 [options.proxy_mode]
 default = false
+help = "Activate reverse proxy WSGI wrappers (headers rewriting) Only enable this when running behind a trusted web proxy!"
 
 [options.reportgz]
 default = false
 
 [options.server_wide_modules]
 default = "base,web"
+help = "Comma-separated list of server-wide modules."
 
 [options.skip_auto_install]
 default = false
+help = "skip the automatic installation of modules marked as auto_install"
 min_version = "18.0"
 max_version = "18.0"
 
 [options.smtp_password]
 default = ""
+help = "specify the SMTP password for sending email"
 
 [options.smtp_port]
 default = 25
+help = "specify the SMTP port"
 
 [options.smtp_server]
 default = "localhost"
+help = "specify the SMTP server for sending email"
 
 [options.smtp_ssl]
 default = false
+help = "if passed, SMTP connections will be encrypted with SSL (STARTTLS)"
 
 [options.smtp_ssl_certificate_filename]
 default = ""
+help = "specify the SSL certificate used for authentication"
 min_version = "15.0"
 
 [options.smtp_ssl_private_key_filename]
 default = ""
+help = "specify the SSL private key used for authentication"
 min_version = "15.0"
 
 [options.smtp_user]
 default = ""
+help = "specify the SMTP username for sending email"
 
 [options.syslog]
 default = false
+help = "Send the log to the syslog server"
 
 [options.transient_age_limit]
 default = 1.0
+help = "Time limit (decimal value in hours) records created with a TransientModel (mostly wizard) are kept in the database. Default to 1 hour."
 min_version = "14.0"
 
 [options.translate_modules]
+help = "specify modules to export. Use in combination with --i18n-export"
 max_version = "18.0"
 
 [options.unaccent]
 default = false
+help = "Try to enable the unaccent extension when creating new databases."
 
 [options.upgrade_path]
 default = ""
+help = "specify an additional upgrade path."
 
 [options.websocket_keep_alive_timeout]
 default = 3600
@@ -257,15 +316,19 @@ min_version = "16.0"
 
 [options.with_demo]
 default = false
+help = "don't install demo data in new databases (default)"
 min_version = "19.0"
 
 [options.without_demo]
 default = false
+help = "disable loading demo data for modules to be installed (comma-separated, use \"all\" for all modules). Requires -d and -i. Default is %default"
 max_version = "18.0"
 
 [options.workers]
 default = 0
+help = "Specify the number of workers, 0 disable prefork mode."
 
 [options.x_sendfile]
 default = false
+help = "Activate X-Sendfile (apache) and X-Accel-Redirect (nginx) HTTP response header to delegate the delivery of large files (assets/attachments) to the web server."
 min_version = "16.0"

@@ -3,6 +3,9 @@ from odoo_config.schema import (
     _merge,
     build,
     default_for,
+    drop_defaults,
+    drop_outdated,
+    explain_rows,
     load_schema,
     overlay_overrides,
     render,
@@ -32,6 +35,10 @@ def test_merge_overlay_precedence():
     # overlay supplies its own by_version -> wins over the mined one
     merged = _merge(core, {"a": {"by_version": {"18.0": 7}}})
     assert merged["a"]["by_version"] == {"18.0": 7}
+
+    # odoo help is inherited into the merged schema (even when overlay touches the key)
+    merged = _merge({"a": {"help": "odoo help"}}, {"a": {"default": 5}})
+    assert merged["a"]["help"] == "odoo help"
 
 
 def test_version_filtering():
@@ -84,6 +91,31 @@ def test_default_for_by_version():
     assert default_for(meta, "19.0") == 65536
     assert default_for(meta, None) == 65536  # no version -> newest
     assert default_for({"default": 7}, "19.0") == 7  # no by_version -> plain default
+
+
+def test_transforms():
+    schema, _ = load_schema()
+    admin_default = default_for(schema["admin_passwd"], "19.0")
+    values = {"admin_passwd": admin_default, "workers": "8", "bogus_opt": "x"}
+
+    compact = drop_defaults(values, schema, "19.0")
+    assert "admin_passwd" not in compact  # equals default -> dropped
+    assert compact["workers"] == "8"  # differs from default -> kept
+    assert compact["bogus_opt"] == "x"  # unknown -> kept (no default to compare)
+
+    cleaned = drop_outdated(values, schema, "19.0")
+    assert "bogus_opt" not in cleaned  # unknown -> dropped
+    assert "workers" in cleaned
+    assert "longpolling_port" not in drop_outdated({"longpolling_port": "8072"}, schema, "19.0")  # invalid >15
+
+    rows = {k: (help_text, default) for k, _v, help_text, default in explain_rows(values, schema, "19.0")}
+    assert rows["workers"][1] == default_for(schema["workers"], "19.0")  # default surfaced
+    assert rows["bogus_opt"] == ("", "")  # unknown -> empty help/default
+
+    # overlay comment overrides odoo help; help is the fallback when no comment
+    fake = {"a": {"help": "odoo help", "comment": "trobz note"}, "b": {"help": "odoo help"}}
+    helps = {k: h for k, _v, h, _d in explain_rows({"a": "1", "b": "2"}, fake, None)}
+    assert helps == {"a": "trobz note", "b": "odoo help"}
 
 
 def test_compare_columns():
