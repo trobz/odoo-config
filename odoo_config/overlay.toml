@@ -261,6 +261,7 @@ mandatory = true
 [options.sentry_odoo_dir]
 default = ""
 mandatory = true
+comment = "Git clone root (must hold a real .git/ dir with HEAD) used to derive the Sentry release from the commit SHA when sentry_release is unset; worktree/submodule checkouts (.git is a file) won't resolve."
 
 # ir.config_parameter section.
 [options."report.url"]

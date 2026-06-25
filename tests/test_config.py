@@ -8,6 +8,7 @@ from odoo_config.schema import (
     explain_rows,
     load_schema,
     overlay_overrides,
+    read_conf,
     render,
     resolve_given,
     valid_for_version,
@@ -103,6 +104,10 @@ def test_transforms():
     assert compact["workers"] == "8"  # differs from default -> kept
     assert compact["bogus_opt"] == "x"  # unknown -> kept (no default to compare)
 
+    # value equals the trobz overlay default (odoo stock differs) -> kept
+    overlaid = drop_defaults({"max_cron_threads": "1"}, schema, "19.0")
+    assert overlaid["max_cron_threads"] == "1"
+
     cleaned = drop_outdated(values, schema, "19.0")
     assert "bogus_opt" not in cleaned  # unknown -> dropped
     assert "workers" in cleaned
@@ -151,3 +156,34 @@ def test_row_differs():
     # bool casing is normalised: "False" == "false", "True" == "true"
     assert not _row_differs({"f.conf": {"v": "False"}, "19.0": {"v": "false"}}, ["f.conf", "19.0"], "v", {"f.conf"})
     assert not _row_differs({"f.conf": {"v": "True"}, "19.0": {"v": "true"}}, ["f.conf", "19.0"], "v", {"f.conf"})
+
+
+def test_read_conf(tmp_path):
+    conf_file = tmp_path / "odoo.conf"
+    conf_file.write_text("[options]\nworkers = 4\n[other]\ncustom_val = x\n")
+
+    # Test reading with pathlib.Path
+    values, sections = read_conf(conf_file)
+    assert values == {"workers": "4", "custom_val": "x"}
+    assert sections == {"workers": "options", "custom_val": "other"}
+
+    # Test reading with str path
+    values, sections = read_conf(str(conf_file))
+    assert values == {"workers": "4", "custom_val": "x"}
+    assert sections == {"workers": "options", "custom_val": "other"}
+
+
+def test_read_conf_remote(monkeypatch):
+    # Mock read_remote to return a dummy config content
+    def mock_read_remote(path):
+        assert path == "remote-host:/path/to/odoo.conf"
+        return "[options]\nworkers = 8\n"
+
+    import odoo_config.schema
+
+    monkeypatch.setattr(odoo_config.schema, "read_remote", mock_read_remote)
+
+    # Test with string path containing ":"
+    values, sections = read_conf("remote-host:/path/to/odoo.conf")
+    assert values == {"workers": "8"}
+    assert sections == {"workers": "options"}

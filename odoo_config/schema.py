@@ -151,7 +151,7 @@ def read_conf(path):
     # flat key namespace; a key duplicated across sections collapses
     # (last wins). Re-key by (section, key) if Odoo ever shares a name.
     cp = _CaseSensitiveParser()
-    if ":" in path:
+    if ":" in str(path):
         content = read_remote(path)
         cp.read_string(content)
     else:
@@ -253,15 +253,17 @@ def render(built, schema, given, secmap=None):
 
 
 def drop_defaults(values, schema, version):
-    """Drop keys whose value equals the schema default for the version (compact).
+    """Drop keys whose value equals odoo's stock default for the version (compact).
 
-    Unknown keys (absent from the schema) are kept — we have no default to
-    compare them against.
+    Keys the trobz overlay re-defaults or adds are kept: their default is not
+    odoo's, so dropping them would silently fall back to odoo's stock value.
+    Unknown keys (absent from the schema) are kept — no default to compare.
     """
+    overridden = overlay_overrides()
     out = {}
     for key, value in values.items():
         meta = schema.get(key)
-        if meta is not None and canon(value) == canon(default_for(meta, version)):
+        if meta is not None and key not in overridden and canon(value) == canon(default_for(meta, version)):
             continue
 
         out[key] = value
