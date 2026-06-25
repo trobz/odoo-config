@@ -151,7 +151,7 @@ def read_conf(path):
     # flat key namespace; a key duplicated across sections collapses
     # (last wins). Re-key by (section, key) if Odoo ever shares a name.
     cp = _CaseSensitiveParser()
-    if ":" in path:
+    if ":" in str(path):
         content = read_remote(path)
         cp.read_string(content)
     else:
