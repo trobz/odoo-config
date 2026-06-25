@@ -104,6 +104,10 @@ def test_transforms():
     assert compact["workers"] == "8"  # differs from default -> kept
     assert compact["bogus_opt"] == "x"  # unknown -> kept (no default to compare)
 
+    # value equals the trobz overlay default (odoo stock differs) -> kept
+    overlaid = drop_defaults({"max_cron_threads": "1"}, schema, "19.0")
+    assert overlaid["max_cron_threads"] == "1"
+
     cleaned = drop_outdated(values, schema, "19.0")
     assert "bogus_opt" not in cleaned  # unknown -> dropped
     assert "workers" in cleaned
