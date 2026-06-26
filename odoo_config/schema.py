@@ -211,7 +211,8 @@ def build(schema, version, fmt, given):
             out[key] = default_for(meta, version)
 
     for key, value in given.items():
-        if key not in out:
+        # keep unknown given keys (no schema), but not in-schema keys invalid here
+        if key not in out and valid_for_version(schema.get(key, {}), version):
             out[key] = value
 
     return out
@@ -255,6 +256,8 @@ def render(built, schema, given, secmap=None):
 def drop_defaults(values, schema, version):
     """Drop keys whose value equals odoo's stock default for the version (compact).
 
+    Keys invalid for the version are dropped — they don't exist in it, so no
+    value is meaningful (matches `clean`/`expand`, which also honour validity).
     Keys the trobz overlay re-defaults or adds are kept: their default is not
     odoo's, so dropping them would silently fall back to odoo's stock value.
     Unknown keys (absent from the schema) are kept — no default to compare.
@@ -263,6 +266,9 @@ def drop_defaults(values, schema, version):
     out = {}
     for key, value in values.items():
         meta = schema.get(key)
+        if meta is not None and not valid_for_version(meta, version):
+            continue
+
         if meta is not None and key not in overridden and canon(value) == canon(default_for(meta, version)):
             continue
 
@@ -281,10 +287,15 @@ def explain_rows(values, schema, version):
 
     Help is odoo's option description from the vendored snapshot (options.toml);
     an overlay `comment`, when present, overrides it as a trobz-specific note.
+    With a version, in-schema keys invalid for it are dropped; without one
+    (version None) every row is shown — valid_for_version passes everything.
     """
     rows = []
     for key, value in values.items():
         meta = schema.get(key, {})
+        if meta and not valid_for_version(meta, version):
+            continue
+
         help_text = meta.get("comment") or meta.get("help") or ""
         default = default_for(meta, version) if meta else ""
         rows.append((key, value, help_text, default))

@@ -327,7 +327,7 @@ def compact(
     diff: DiffOpt = False,
     inplace: InplaceOpt = False,
 ):
-    """Remove options whose value equals odoo's native default (trobz-overlay values are kept)."""
+    """Remove options equal to odoo's native default (trobz-overlay values kept), or invalid for the version."""
     schema, _ = load_schema()
     values, secmap = _read_required(config)
     _output(config, values, secmap, drop_defaults(values, schema, version), schema, "compact", diff, inplace)
