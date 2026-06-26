@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.3.0 (2026-06-26)
+
+### Features
+
+- **schema**: Add --enterprise edition filter
+  ([`b65d88a`](https://github.com/trobz/odoo-config/commit/b65d88a55b6f074b80cffce2ed9315d22c2007fc))
+
+
 ## v0.2.2 (2026-06-26)
 
 ### Bug Fixes
