@@ -108,6 +108,9 @@ def test_transforms():
     overlaid = drop_defaults({"max_cron_threads": "1"}, schema, "19.0")
     assert overlaid["max_cron_threads"] == "1"
 
+    # invalid for the version -> dropped even when at its default
+    assert "longpolling_port" not in drop_defaults({"longpolling_port": "8072"}, schema, "19.0")  # max 15
+
     cleaned = drop_outdated(values, schema, "19.0")
     assert "bogus_opt" not in cleaned  # unknown -> dropped
     assert "workers" in cleaned
@@ -116,6 +119,11 @@ def test_transforms():
     rows = {k: (help_text, default) for k, _v, help_text, default in explain_rows(values, schema, "19.0")}
     assert rows["workers"][1] == default_for(schema["workers"], "19.0")  # default surfaced
     assert rows["bogus_opt"] == ("", "")  # unknown -> empty help/default
+
+    # version given -> invalid in-schema keys dropped; none -> kept
+    explained = {k for k, *_ in explain_rows({"longpolling_port": "8072"}, schema, "19.0")}
+    assert "longpolling_port" not in explained
+    assert "longpolling_port" in {k for k, *_ in explain_rows({"longpolling_port": "8072"}, schema, None)}
 
     # overlay comment overrides odoo help; help is the fallback when no comment
     fake = {"a": {"help": "odoo help", "comment": "trobz note"}, "b": {"help": "odoo help"}}
