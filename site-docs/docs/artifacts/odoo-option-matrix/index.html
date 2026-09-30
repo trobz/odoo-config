@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odoo Option Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#111111; --surface:#191919; --panel:#1f1f1f; --line:#333333; --line-soft:#262626;
+  --ink:#f5f5f5; --muted:#a3a3a3; --faint:#737373;
+  --accent:#f97316; --accent-ink:#111111; --accent-soft:#3a1f0d;
+  --add:#57c88a; --add-bg:#16301f;
+  --del:#f0837a; --del-bg:#3a1a18;
+  --chg:#e4b64a; --chg-bg:#33290f;
+  --trobz:#5cc6cc; --trobz-bg:#123032;
+  --ent:#a9a0f0; --ent-bg:#25224a;
+  --code-bg:#161616; --code-key:#fdba74; --code-val:#8cc4ee; --code-com:#8a8a8a; --code-sec:#5cc6cc;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#fafafa; --surface:#ffffff; --panel:#f4f4f5; --line:#e4e4e7; --line-soft:#efeff1;
+  --ink:#18181b; --muted:#5f5f68; --faint:#a1a1aa;
+  --accent:#c2410c; --accent-ink:#ffffff; --accent-soft:#ffedd5;
+  --add:#1f7a4d; --add-bg:#e3f4ea;
+  --del:#b42318; --del-bg:#fdecea;
+  --chg:#8a5d00; --chg-bg:#fff2cc;
+  --trobz:#0f6e74; --trobz-bg:#dff1f1;
+  --ent:#4f46a5; --ent-bg:#ecebfa;
+  --code-bg:#f7f7f8; --code-key:#c2410c; --code-val:#1f5f8a; --code-com:#80808a; --code-sec:#0f6e74;
+  --shadow:0 1px 2px rgba(24,24,27,.06),0 4px 16px rgba(24,24,27,.06);
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans);margin:0}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+code,.mono{font-family:var(--mono);font-size:.92em}
+
+.wrap{max-width:1320px;margin:0 auto;padding-inline:16px}
+@media (min-width:720px){.wrap{padding-inline:28px}}
+
+/* Top strip: links between the three pages and the theme switch. */
+.strip{background:var(--panel);border-bottom:1px solid var(--line);font-size:12.5px}
+.strip .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-block:8px}
+.strip nav{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+.strip nav a{padding:3px 10px;border-radius:999px;color:var(--muted);text-decoration:none;border:1px solid transparent}
+.strip nav a:hover{color:var(--ink);border-color:var(--line)}
+.strip nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+.theme{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.theme button{border:0;background:none;padding:3px 10px;font-size:12px;color:var(--muted);cursor:pointer}
+.theme button + button{border-left:1px solid var(--line-soft)}
+.theme button:hover{color:var(--ink)}
+.theme button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+header.page{padding-block:22px 14px}
+header.page h1{font:600 26px/1.15 var(--sans);letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
+header.page p{margin:0;color:var(--muted);max-width:72ch}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+footer.page{border-top:1px solid var(--line);margin-top:32px;padding-block:14px 28px;font-size:12.5px;color:var(--muted)}
+
+/* Badges */
+.badges{display:inline-flex;flex-wrap:wrap;gap:4px}
+.b{display:inline-flex;align-items:center;height:19px;padding:0 7px;border-radius:4px;font:500 11px/1 var(--sans);letter-spacing:.02em;white-space:nowrap;border:1px solid transparent}
+.b-trobz{background:var(--trobz-bg);color:var(--trobz)}
+.b-mand{border-color:var(--line);color:var(--ink)}
+.b-ent{background:var(--ent-bg);color:var(--ent)}
+.b-legacy{background:var(--panel);color:var(--muted)}
+.b-sec{background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:10.5px}
+.b-add{background:var(--add-bg);color:var(--add)}
+.b-del{background:var(--del-bg);color:var(--del)}
+.b-chg{background:var(--chg-bg);color:var(--chg)}
+
+/* Controls */
+.field{display:flex;flex-direction:column;gap:5px}
+.field > label,.label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.input{height:34px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);min-width:0}
+.input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.search{width:100%;padding-left:32px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238a8a8a' stroke-width='1.6'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E") no-repeat 10px 50%}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:28px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--faint)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip .n{font-variant-numeric:tabular-nums;color:var(--faint);font-size:11.5px}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:6px 11px;cursor:pointer;font-size:13px;font-variant-numeric:tabular-nums;border-right:1px solid var(--line-soft)}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:var(--panel)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn{height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;user-select:none}
+.switch input{appearance:none;width:30px;height:18px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;margin:0;flex:none;transition:background .15s}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(12px)}
+
+/* ini code block */
+.ini{font:12.5px/1.6 var(--mono);background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:0;overflow-x:auto;white-space:pre;color:var(--ink)}
+:is(.ini,.hl) .s{color:var(--code-sec);font-weight:600}
+:is(.ini,.hl) .c{color:var(--code-com);font-style:italic}
+:is(.ini,.hl) .k{color:var(--code-key)}
+:is(.ini,.hl) .v{color:var(--code-val)}
+
+.muted{color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.note{font-size:12px;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.mig{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:16px;display:grid;gap:14px}
+.mig-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.mig-head h2{font:600 17px/1.2 var(--sans);margin:0}
+.mig-head select{height:32px}
+.arrow{color:var(--muted)}
+.sum{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.sum .b{height:24px;font-size:12.5px;padding:0 10px}
+.cols{display:grid;gap:12px}
+@media (min-width:860px){.cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.col{border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;background:var(--bg);min-width:0}
+.col h3{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px;display:flex;gap:6px;align-items:center}
+.col h3 i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.col ul{list-style:none;margin:0;padding:0;display:grid;gap:5px;font:12.5px/1.35 var(--mono)}
+.col li{word-break:break-all}
+.col li span{color:var(--muted)}
+.col .none{font-family:var(--sans);color:var(--muted);font-size:13px}
+
+.mx-bar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:22px 0 10px}
+.mx-bar .search{max-width:320px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-left:auto}
+.legend span{display:inline-flex;align-items:center;gap:5px}.legend span[hidden]{display:none}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid var(--line)}
+.mx-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table.mx{border-collapse:separate;border-spacing:0;width:100%;min-width:900px;font-variant-numeric:tabular-nums}
+.mx th,.mx td{border-bottom:1px solid var(--line-soft);padding:0;height:32px}
+.mx thead th{background:var(--panel);font-size:12px;font-weight:600;color:var(--muted);text-align:center;padding:8px 6px;position:sticky;top:0;z-index:1}
+.mx thead tr.tot th{font-weight:400;font-size:11.5px;padding-top:0}
+.mx th.k,.mx td.k{position:sticky;left:0;background:var(--surface);text-align:left;padding:0 12px;z-index:2;border-right:1px solid var(--line);min-width:230px;max-width:260px}
+.mx thead th.k{background:var(--panel);z-index:3}
+.mx td.k .key{font:500 12.5px/1.2 var(--mono);word-break:break-all}
+.mx td.k .badges{margin-top:2px}
+.mx td.k .b{height:16px;font-size:10px;padding:0 5px}
+.mx td.c{text-align:center;font:12px/1.2 var(--mono);padding:0 6px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-left:1px solid var(--line-soft)}
+.mx td.c.na{color:var(--faint)}
+.mx td.c.notcore{font-family:var(--sans);font-style:italic;text-align:left;padding-left:14px}
+.mx td.c.same{color:var(--muted)}
+.mx td.c.add{background:var(--add-bg);color:var(--add);font-weight:500}
+.mx td.c.del{background:var(--del-bg);color:var(--del);font-family:var(--sans);font-size:11px;font-weight:500}
+.mx td.c.chg{background:var(--chg-bg);color:var(--chg);font-weight:500}
+.mx td.c.ovr{box-shadow:inset 0 -3px 0 var(--trobz)}
+.mx td.c.na.inrange,.mx td.c.same.inrange{background:color-mix(in srgb,var(--accent-soft) 55%,var(--surface))}
+.mx thead th.inrange{color:var(--accent)}
+.mx tr:hover td.k,.mx tr:hover td.c{filter:brightness(.97)}
+.mx-foot{font-size:12.5px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="strip"><div class="wrap"><nav aria-label="Pages"><a href="../../">odoo-config docs</a><a href="../odoo-option-lookup/">Lookup table</a><a href="../odoo-option-matrix/" aria-current="page">Version matrix</a><a href="../odoo-conf-builder/">Config builder</a></nav><div class="theme" role="group" aria-label="Theme"><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div></div></div>
+<script>(() => {
+  // Share the light/dark choice with the zensical docs pages: same localStorage
+  // key and value shape as their palette toggle (theme.palette in zensical.toml).
+  const root = document.documentElement, KEY = new URL("../../", location).pathname + ".__palette";
+  const SCHEME = { light: [0, "default"], dark: [1, "slate"] };
+  const apply = (mode) => {
+    root.dataset.theme = mode;
+    document.querySelectorAll(".theme button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.t === mode));
+  };
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  apply(saved?.color?.scheme === "default" ? "light" : "dark");
+  document.querySelector(".theme").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const [index, scheme] = SCHEME[b.dataset.t];
+    try { localStorage.setItem(KEY, JSON.stringify({ index, color: { media: "none", scheme, primary: "indigo", accent: "indigo" } })); } catch (e) {}
+    apply(b.dataset.t);
+  });
+})();</script>
+
+<header class="page wrap">
+  <h1>Odoo option matrix</h1>
+  <p>How <code>odoo.conf</code> options appear, disappear and change their default from Odoo <span data-vrange>13.0 to 19.0</span>. Pick two versions to see what changes when you migrate.</p>
+  <div class="meta"><span><b data-count>0</b> options</span><span><b id="n-var">0</b> change between versions</span><span>Source <span data-src></span></span></div>
+</header>
+
+<main class="wrap">
+  <section class="mig" aria-labelledby="mig-t">
+    <div class="mig-head">
+      <h2 id="mig-t">Migrating</h2>
+      <label class="sr" for="from">From version</label><select id="from" class="input"></select>
+      <span class="arrow" aria-hidden="true">→</span>
+      <label class="sr" for="to">To version</label><select id="to" class="input"></select>
+      <div class="sum" id="sum"></div>
+    </div>
+    <div class="cols" id="cols"></div>
+  </section>
+
+  <div class="mx-bar">
+    <label class="sr" for="q">Search options</label>
+    <input id="q" class="input search" type="search" placeholder="Filter options" autocomplete="off">
+    <label class="switch"><input type="checkbox" id="only" checked> Only options that change</label>
+    <label class="switch"><input type="checkbox" id="stock"> Show Odoo's own defaults</label>
+    <label class="switch"><input type="checkbox" id="ent" checked> Include Enterprise</label>
+    <div class="legend" role="group" aria-label="Legend">
+      <span><i style="background:var(--add-bg);border-color:var(--add)"></i>added</span>
+      <span><i style="background:var(--chg-bg);border-color:var(--chg)"></i>default changed</span>
+      <span><i style="background:var(--del-bg);border-color:var(--del)"></i>removed</span>
+      <span id="lg-ovr" hidden><i style="box-shadow:inset 0 -3px 0 var(--trobz)"></i>custom default differs</span>
+    </div>
+  </div>
+  <div class="mx-wrap"><table class="mx"><thead id="mx-h"></thead><tbody id="mx-b"></tbody></table></div>
+  <p class="mx-foot" id="mx-foot"></p>
+</main>
+
+<footer class="page wrap">
+  Built from real data in <span data-src></span>. Each cell is the value odoo-config writes: Odoo's default, or the custom one where odoo-config sets its own. Turn on "Show Odoo's own defaults" to see Odoo's values without the custom ones. Values are compared as text, as written in <code>odoo.conf</code>: <code>osv_memory_count_limit</code> going from <code>False</code> to <code>0</code> in 16.0 counts as a change, though both mean "no limit".
+</footer>
+
+<script type="application/json" id="schema-data">{"source":{"repo":"trobz/odoo-config","commit":"c49c1a0","describe":"v0.3.0"},"versions":["13.0","14.0","15.0","16.0","17.0","18.0","19.0"],"presets":{"integration":{"max_cron_threads":"0","is_production_instance":"False"},"staging":{"max_cron_threads":"0","is_production_instance":"False"},"production":{"max_cron_threads":"2","is_production_instance":"True","list_db":"False","ribbon.name":""}},"options":[{"key":"admin_passwd","default":"admin","comment":"Master password for database operations. Keep this file secure.","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"admin","versions":{"13.0":"admin","14.0":"admin","15.0":"admin","16.0":"admin","17.0":"admin","18.0":"admin","19.0":"admin"},"core_versions":{"13.0":"admin","14.0":"admin","15.0":"admin","16.0":"admin","17.0":"admin","18.0":"admin","19.0":"admin"}},{"key":"without_demo","default":"True","help":"disable loading demo data for modules to be installed (comma-separated, use \"all\" for all modules). Requires -d and -i. Default is %default","mandatory":true,"max_version":"18.0","type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"False","versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":null},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":null}},{"key":"db_user","default":"","help":"specify the database user name","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"db_password","default":"","help":"specify the database password","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"db_name","default":"False","help":"database(s) used when installing or updating modules.","comment":"Uncomment after the database is created to enable module auto-check.","commented":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"","versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"db_host","default":"localhost","help":"specify the database host","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"","versions":{"13.0":"localhost","14.0":"localhost","15.0":"localhost","16.0":"localhost","17.0":"localhost","18.0":"localhost","19.0":"localhost"},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"db_port","default":"5432","help":"specify the database port","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"False","versions":{"13.0":"5432","14.0":"5432","15.0":"5432","16.0":"5432","17.0":"5432","18.0":"5432","19.0":"5432"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"db_maxconn","default":"64","help":"specify the maximum number of physical connections to PostgreSQL","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":false,"core_default":"64","versions":{"13.0":"64","14.0":"64","15.0":"64","16.0":"64","17.0":"64","18.0":"64","19.0":"64"},"core_versions":{"13.0":"64","14.0":"64","15.0":"64","16.0":"64","17.0":"64","18.0":"64","19.0":"64"}},{"key":"db_template","default":"template1","help":"specify a custom database template to create a new database","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"template0","versions":{"13.0":"template1","14.0":"template1","15.0":"template1","16.0":"template1","17.0":"template1","18.0":"template1","19.0":"template1"},"core_versions":{"13.0":"template0","14.0":"template0","15.0":"template0","16.0":"template0","17.0":"template0","18.0":"template0","19.0":"template0"}},{"key":"addons_path","default":"","help":"specify additional addons paths (separated by commas).","comment":"Comma-separated list of addons directories.","type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"data_dir","help":"Directory where to store Odoo data","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"interface","default":"","mandatory":true,"max_version":"10.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"netrpc","default":"False","mandatory":true,"max_version":"9.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"xmlrpcs","default":"False","mandatory":true,"max_version":"10.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"xmlrpc","default":"True","mandatory":true,"max_version":"10.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"xmlrpc_interface","default":"","mandatory":true,"max_version":"10.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"xmlrpc_port","default":"8069","mandatory":true,"max_version":"10.0","type":"int","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"soap","default":"False","mandatory":true,"max_version":"9.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"http_interface","default":"","help":"Listen interface address for HTTP services.","type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"0.0.0.0","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":"0.0.0.0"}},{"key":"http_port","default":"8069","help":"Listen port for the main HTTP service","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":false,"core_default":"8069","versions":{"13.0":"8069","14.0":"8069","15.0":"8069","16.0":"8069","17.0":"8069","18.0":"8069","19.0":"8069"},"core_versions":{"13.0":"8069","14.0":"8069","15.0":"8069","16.0":"8069","17.0":"8069","18.0":"8069","19.0":"8069"}},{"key":"longpolling_port","default":"8072","help":"Listen port for the longpolling HTTP service","max_version":"15.0","type":"int","in_core":true,"in_overlay":true,"trobz":false,"core_default":"8072","versions":{"13.0":"8072","14.0":"8072","15.0":"8072","16.0":null,"17.0":null,"18.0":null,"19.0":null},"core_versions":{"13.0":"8072","14.0":"8072","15.0":"8072","16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"gevent_port","default":"8072","help":"Listen port for the gevent worker","min_version":"16.0","type":"int","in_core":true,"in_overlay":true,"trobz":false,"core_default":"8072","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"8072","17.0":"8072","18.0":"8072","19.0":"8072"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"8072","17.0":"8072","18.0":"8072","19.0":"8072"}},{"key":"proxy_mode","default":"True","help":"Activate reverse proxy WSGI wrappers (headers rewriting) Only enable this when running behind a trusted web proxy!","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"False","versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":"True"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"list_db","default":"True","help":"Disable the ability to obtain or view the list of databases. Also disable access to the database manager and selector, so be sure to set a proper --database parameter first","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"True","versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":"True"},"core_versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":"True"}},{"key":"reportgz","default":"False","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"False","versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"translate_modules","default":"['all']","help":"specify modules to export. Use in combination with --i18n-export","mandatory":true,"max_version":"18.0","type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"","versions":{"13.0":"['all']","14.0":"['all']","15.0":"['all']","16.0":"['all']","17.0":"['all']","18.0":"['all']","19.0":null},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":null}},{"key":"unaccent","default":"True","help":"Try to enable the unaccent extension when creating new databases.","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"False","versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":"True"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"logfile","default":"log/server.log","help":"file where the server log will be stored","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"","versions":{"13.0":"log/server.log","14.0":"log/server.log","15.0":"log/server.log","16.0":"log/server.log","17.0":"log/server.log","18.0":"log/server.log","19.0":"log/server.log"},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"syslog","default":"False","help":"Send the log to the syslog server","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"False","versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"logrotate","default":"False","mandatory":true,"max_version":"11.0","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":null}},{"key":"log_level","default":"debug_rpc","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":true,"core_default":"info","versions":{"13.0":"debug_rpc","14.0":"debug_rpc","15.0":"debug_rpc","16.0":"debug_rpc","17.0":"debug_rpc","18.0":"debug_rpc","19.0":"debug_rpc"},"core_versions":{"13.0":"info","14.0":"info","15.0":"info","16.0":"info","17.0":"info","18.0":"info","19.0":"info"}},{"key":"is_production_instance","default":"False","comment":"False routes all outbound email to the catch-all test address.","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"running_env","default":"test","comment":"Some modules abort loading if server_environment running_env is unset.","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"test","14.0":"test","15.0":"test","16.0":"test","17.0":"test","18.0":"test","19.0":"test"}},{"key":"workers","default":"4","help":"Specify the number of workers, 0 disable prefork mode.","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"0","versions":{"13.0":"4","14.0":"4","15.0":"4","16.0":"4","17.0":"4","18.0":"4","19.0":"4"},"core_versions":{"13.0":"0","14.0":"0","15.0":"0","16.0":"0","17.0":"0","18.0":"0","19.0":"0"}},{"key":"server_wide_modules","default":"base,web","help":"Comma-separated list of server-wide modules.","mandatory":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"base,web","versions":{"13.0":"base,web","14.0":"base,web","15.0":"base,web","16.0":"base,web","17.0":"base,web","18.0":"base,web","19.0":"base,web"},"core_versions":{"13.0":"base,web","14.0":"base,web","15.0":"base,web","16.0":"base,web","17.0":"base,web","18.0":"base,web","19.0":"base,web"}},{"key":"max_cron_threads","default":"1","help":"Maximum number of threads processing concurrently cron jobs (default 2).","comment":"0 disables scheduled actions (non-production); 2 on production.","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"2","versions":{"13.0":"1","14.0":"1","15.0":"1","16.0":"1","17.0":"1","18.0":"1","19.0":"1"},"core_versions":{"13.0":"2","14.0":"2","15.0":"2","16.0":"2","17.0":"2","18.0":"2","19.0":"2"}},{"key":"limit_memory_hard","default":"2147483648","help":"Maximum allowed virtual memory per worker (in bytes), when reached, any memory allocation will fail (default 2560MiB).","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"2684354560","versions":{"13.0":"2147483648","14.0":"2147483648","15.0":"2147483648","16.0":"2147483648","17.0":"2147483648","18.0":"2147483648","19.0":"2147483648"},"core_versions":{"13.0":"2684354560","14.0":"2684354560","15.0":"2684354560","16.0":"2684354560","17.0":"2684354560","18.0":"2684354560","19.0":"2684354560"}},{"key":"limit_memory_soft","default":"1342177280","help":"Maximum allowed virtual memory per worker (in bytes), when reached the worker be reset after the current request (default 2048MiB).","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"2147483648","versions":{"13.0":"1342177280","14.0":"1342177280","15.0":"1342177280","16.0":"1342177280","17.0":"1342177280","18.0":"1342177280","19.0":"1342177280"},"core_versions":{"13.0":"2147483648","14.0":"2147483648","15.0":"2147483648","16.0":"2147483648","17.0":"2147483648","18.0":"2147483648","19.0":"2147483648"}},{"key":"limit_request","default":"65536","help":"Maximum number of request to be processed per worker (default 65536).","mandatory":true,"by_version":{"13.0":"8192","14.0":"8192","15.0":"8192","16.0":"65536","17.0":"65536","18.0":"65536","19.0":"65536"},"type":"int","in_core":true,"in_overlay":true,"trobz":false,"core_default":"65536","versions":{"13.0":"8192","14.0":"8192","15.0":"8192","16.0":"65536","17.0":"65536","18.0":"65536","19.0":"65536"},"core_versions":{"13.0":"8192","14.0":"8192","15.0":"8192","16.0":"65536","17.0":"65536","18.0":"65536","19.0":"65536"}},{"key":"limit_time_cpu","default":"3600","help":"Maximum allowed CPU time per request (default 60).","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"60","versions":{"13.0":"3600","14.0":"3600","15.0":"3600","16.0":"3600","17.0":"3600","18.0":"3600","19.0":"3600"},"core_versions":{"13.0":"60","14.0":"60","15.0":"60","16.0":"60","17.0":"60","18.0":"60","19.0":"60"}},{"key":"limit_time_real","default":"3600","help":"Maximum allowed Real time per request (default 120).","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"120","versions":{"13.0":"3600","14.0":"3600","15.0":"3600","16.0":"3600","17.0":"3600","18.0":"3600","19.0":"3600"},"core_versions":{"13.0":"120","14.0":"120","15.0":"120","16.0":"120","17.0":"120","18.0":"120","19.0":"120"}},{"key":"limit_time_real_cron","default":"7200","help":"Maximum allowed Real time per cron job. (default: --limit-time-real). Set to 0 for no limit.","mandatory":true,"type":"int","in_core":true,"in_overlay":true,"trobz":true,"core_default":"-1","versions":{"13.0":"7200","14.0":"7200","15.0":"7200","16.0":"7200","17.0":"7200","18.0":"7200","19.0":"7200"},"core_versions":{"13.0":"-1","14.0":"-1","15.0":"-1","16.0":"-1","17.0":"-1","18.0":"-1","19.0":"-1"}},{"key":"smtp_server","default":"localhost","help":"specify the SMTP server for sending email","commented":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"localhost","versions":{"13.0":"localhost","14.0":"localhost","15.0":"localhost","16.0":"localhost","17.0":"localhost","18.0":"localhost","19.0":"localhost"},"core_versions":{"13.0":"localhost","14.0":"localhost","15.0":"localhost","16.0":"localhost","17.0":"localhost","18.0":"localhost","19.0":"localhost"}},{"key":"smtp_port","default":"25","help":"specify the SMTP port","commented":true,"type":"int","in_core":true,"in_overlay":true,"trobz":false,"core_default":"25","versions":{"13.0":"25","14.0":"25","15.0":"25","16.0":"25","17.0":"25","18.0":"25","19.0":"25"},"core_versions":{"13.0":"25","14.0":"25","15.0":"25","16.0":"25","17.0":"25","18.0":"25","19.0":"25"}},{"key":"smtp_ssl","default":"False","help":"if passed, SMTP connections will be encrypted with SSL (STARTTLS)","commented":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"False","versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"smtp_user","default":"","help":"specify the SMTP username for sending email","commented":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"smtp_password","default":"","help":"specify the SMTP password for sending email","commented":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"email_from","default":"","help":"specify the SMTP email address for sending email","commented":true,"type":"str","in_core":true,"in_overlay":true,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"sentry_dsn","default":"","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"sentry_enabled","default":"False","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"False","17.0":"False","18.0":"False","19.0":"False"}},{"key":"sentry_logging_level","default":"warn","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"warn","14.0":"warn","15.0":"warn","16.0":"warn","17.0":"warn","18.0":"warn","19.0":"warn"}},{"key":"sentry_exclude_loggers","default":"werkzeug,odoo.tools.translate","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"werkzeug,odoo.tools.translate","14.0":"werkzeug,odoo.tools.translate","15.0":"werkzeug,odoo.tools.translate","16.0":"werkzeug,odoo.tools.translate","17.0":"werkzeug,odoo.tools.translate","18.0":"werkzeug,odoo.tools.translate","19.0":"werkzeug,odoo.tools.translate"}},{"key":"sentry_ignore_exceptions","default":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","14.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","15.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","16.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","17.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","18.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm","19.0":"odoo.exceptions.AccessDenied,odoo.exceptions.AccessError,odoo.exceptions.MissingError,odoo.exceptions.RedirectWarning,odoo.exceptions.UserError,odoo.exceptions.ValidationError,odoo.exceptions.Warning,odoo.exceptions.except_orm"}},{"key":"sentry_processors","default":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","14.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","15.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","16.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","17.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","18.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor","19.0":"raven.processors.SanitizePasswordsProcessor,odoo.addons.sentry.logutils.SanitizeOdooCookiesProcessor"}},{"key":"sentry_transport","default":"threaded","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"threaded","14.0":"threaded","15.0":"threaded","16.0":"threaded","17.0":"threaded","18.0":"threaded","19.0":"threaded"}},{"key":"sentry_include_context","default":"true","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"true","14.0":"true","15.0":"true","16.0":"true","17.0":"true","18.0":"true","19.0":"true"}},{"key":"sentry_environment","default":"","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"sentry_auto_log_stacks","default":"false","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"false","14.0":"false","15.0":"false","16.0":"false","17.0":"false","18.0":"false","19.0":"false"}},{"key":"sentry_odoo_dir","default":"","comment":"Git clone root (must hold a real .git/ dir with HEAD) used to derive the Sentry release from the commit SHA when sentry_release is unset; worktree/submodule checkouts (.git is a file) won't resolve.","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"report.url","default":"http://localhost:8069","section":"ir.config_parameter","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"http://localhost:8069","14.0":"http://localhost:8069","15.0":"http://localhost:8069","16.0":"http://localhost:8069","17.0":"http://localhost:8069","18.0":"http://localhost:8069","19.0":"http://localhost:8069"}},{"key":"web.max_file_upload_size","default":"268435456","section":"ir.config_parameter","mandatory":true,"type":"int","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"268435456","14.0":"268435456","15.0":"268435456","16.0":"268435456","17.0":"268435456","18.0":"268435456","19.0":"268435456"}},{"key":"ribbon.background.color","default":"rgba(255,0,0,.6)","section":"ir.config_parameter","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"rgba(255,0,0,.6)","14.0":"rgba(255,0,0,.6)","15.0":"rgba(255,0,0,.6)","16.0":"rgba(255,0,0,.6)","17.0":"rgba(255,0,0,.6)","18.0":"rgba(255,0,0,.6)","19.0":"rgba(255,0,0,.6)"}},{"key":"ribbon.name","default":"{db_name}","section":"ir.config_parameter","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"{db_name}","14.0":"{db_name}","15.0":"{db_name}","16.0":"{db_name}","17.0":"{db_name}","18.0":"{db_name}","19.0":"{db_name}"}},{"key":"ribbon.color","default":"#f0f0f0","section":"ir.config_parameter","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"#f0f0f0","14.0":"#f0f0f0","15.0":"#f0f0f0","16.0":"#f0f0f0","17.0":"#f0f0f0","18.0":"#f0f0f0","19.0":"#f0f0f0"}},{"key":"database.expiration_reason","default":"demo","section":"ir.config_parameter","mandatory":true,"edition":"enterprise","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"demo","14.0":"demo","15.0":"demo","16.0":"demo","17.0":"demo","18.0":"demo","19.0":"demo"}},{"key":"database.expiration_date","default":"2099-12-31 12:34:56","section":"ir.config_parameter","mandatory":true,"edition":"enterprise","type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"2099-12-31 12:34:56","14.0":"2099-12-31 12:34:56","15.0":"2099-12-31 12:34:56","16.0":"2099-12-31 12:34:56","17.0":"2099-12-31 12:34:56","18.0":"2099-12-31 12:34:56","19.0":"2099-12-31 12:34:56"}},{"key":"channels","default":"root:0","section":"queue_job","mandatory":true,"type":"str","in_core":false,"in_overlay":true,"trobz":true,"core_default":null,"versions":{"13.0":"root:0","14.0":"root:0","15.0":"root:0","16.0":"root:0","17.0":"root:0","18.0":"root:0","19.0":"root:0"}},{"key":"csv_internal_sep","default":",","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":",","versions":{"13.0":",","14.0":",","15.0":",","16.0":",","17.0":",","18.0":",","19.0":","},"core_versions":{"13.0":",","14.0":",","15.0":",","16.0":",","17.0":",","18.0":",","19.0":","}},{"key":"db_app_name","default":"odoo-{pid}","help":"specify the application name in the database, {pid} is substituted by the process pid","min_version":"19.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"odoo-{pid}","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":"odoo-{pid}"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":"odoo-{pid}"}},{"key":"db_maxconn_gevent","default":"False","help":"specify the maximum number of physical connections to PostgreSQL specifically for the gevent worker","min_version":"17.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":"False","18.0":"False","19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":"False","18.0":"False","19.0":"False"}},{"key":"db_replica_host","default":"False","help":"specify the replica host","min_version":"18.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"}},{"key":"db_replica_port","default":"False","help":"specify the replica port","min_version":"18.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"}},{"key":"db_sslmode","default":"prefer","help":"specify the database ssl connection mode (see PostgreSQL documentation)","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"prefer","versions":{"13.0":"prefer","14.0":"prefer","15.0":"prefer","16.0":"prefer","17.0":"prefer","18.0":"prefer","19.0":"prefer"},"core_versions":{"13.0":"prefer","14.0":"prefer","15.0":"prefer","16.0":"prefer","17.0":"prefer","18.0":"prefer","19.0":"prefer"}},{"key":"dbfilter","default":"","help":"Regular expressions for filtering available databases for Web UI. The expression can use %d (domain) and %h (host) placeholders.","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"from_filter","default":"","help":"specify for which email address the SMTP configuration can be used","min_version":"15.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":null,"14.0":null,"15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":null,"14.0":null,"15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"geoip_city_db","default":"/usr/share/GeoIP/GeoLite2-City.mmdb","help":"Absolute path to the GeoIP City database file.","min_version":"17.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"/usr/share/GeoIP/GeoLite2-City.mmdb","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","18.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","19.0":"/usr/share/GeoIP/GeoLite2-City.mmdb"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","18.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","19.0":"/usr/share/GeoIP/GeoLite2-City.mmdb"}},{"key":"geoip_country_db","default":"/usr/share/GeoIP/GeoLite2-Country.mmdb","help":"Absolute path to the GeoIP Country database file.","min_version":"17.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"/usr/share/GeoIP/GeoLite2-Country.mmdb","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":"/usr/share/GeoIP/GeoLite2-Country.mmdb","18.0":"/usr/share/GeoIP/GeoLite2-Country.mmdb","19.0":"/usr/share/GeoIP/GeoLite2-Country.mmdb"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":"/usr/share/GeoIP/GeoLite2-Country.mmdb","18.0":"/usr/share/GeoIP/GeoLite2-Country.mmdb","19.0":"/usr/share/GeoIP/GeoLite2-Country.mmdb"}},{"key":"geoip_database","default":"/usr/share/GeoIP/GeoLite2-City.mmdb","help":"Absolute path to the GeoIP database file.","max_version":"16.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"/usr/share/GeoIP/GeoLite2-City.mmdb","versions":{"13.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","14.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","15.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","16.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","17.0":null,"18.0":null,"19.0":null},"core_versions":{"13.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","14.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","15.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","16.0":"/usr/share/GeoIP/GeoLite2-City.mmdb","17.0":null,"18.0":null,"19.0":null}},{"key":"http_enable","default":"True","help":"Disable the HTTP and Longpolling services entirely","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"True","versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":"True"},"core_versions":{"13.0":"True","14.0":"True","15.0":"True","16.0":"True","17.0":"True","18.0":"True","19.0":"True"}},{"key":"limit_memory_hard_gevent","default":"False","help":"Maximum allowed virtual memory per gevent worker (in bytes), when reached, any memory allocation will fail. Defaults to `--limit-memory-hard`.","min_version":"18.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"}},{"key":"limit_memory_soft_gevent","default":"False","help":"Maximum allowed virtual memory per gevent worker (in bytes), when reached the worker will be reset after the current request. Defaults to `--limit-memory-soft`.","min_version":"18.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":"False"}},{"key":"limit_time_worker_cron","default":"0","help":"Maximum time a cron thread/worker stays alive before it is restarted. Set to 0 to disable. (default: 0)","min_version":"16.0","type":"int","in_core":true,"in_overlay":false,"trobz":false,"core_default":"0","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"0","17.0":"0","18.0":"0","19.0":"0"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"0","17.0":"0","18.0":"0","19.0":"0"}},{"key":"log_db","default":"","help":"Logging database","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"log_db_level","default":"warning","help":"Logging database level","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"warning","versions":{"13.0":"warning","14.0":"warning","15.0":"warning","16.0":"warning","17.0":"warning","18.0":"warning","19.0":"warning"},"core_versions":{"13.0":"warning","14.0":"warning","15.0":"warning","16.0":"warning","17.0":"warning","18.0":"warning","19.0":"warning"}},{"key":"log_handler","default":":INFO","help":"shortcut for --log-handler=odoo.sql_db:DEBUG","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":":INFO","versions":{"13.0":":INFO","14.0":":INFO","15.0":":INFO","16.0":":INFO","17.0":":INFO","18.0":":INFO","19.0":":INFO"},"core_versions":{"13.0":":INFO","14.0":":INFO","15.0":":INFO","16.0":":INFO","17.0":":INFO","18.0":":INFO","19.0":":INFO"}},{"key":"osv_memory_age_limit","default":"False","help":"Deprecated alias to the transient-age-limit option","max_version":"16.0","by_version":{"13.0":"1.0","14.0":"False","15.0":"False","16.0":"False"},"type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":"1.0","14.0":"False","15.0":"False","16.0":"False","17.0":null,"18.0":null,"19.0":null},"core_versions":{"13.0":"1.0","14.0":"False","15.0":"False","16.0":"False","17.0":null,"18.0":null,"19.0":null}},{"key":"osv_memory_count_limit","default":"0","help":"Force a limit on the maximum number of records kept in the virtual osv_memory tables. By default there is no limit.","by_version":{"13.0":"False","14.0":"False","15.0":"False","16.0":"0","17.0":"0","18.0":"0","19.0":"0"},"type":"int","in_core":true,"in_overlay":false,"trobz":false,"core_default":"0","versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"0","17.0":"0","18.0":"0","19.0":"0"},"core_versions":{"13.0":"False","14.0":"False","15.0":"False","16.0":"0","17.0":"0","18.0":"0","19.0":"0"}},{"key":"pg_path","default":"","help":"specify the pg executable path","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"pidfile","default":"","help":"file where the server pid will be stored","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"skip_auto_install","default":"False","help":"skip the automatic installation of modules marked as auto_install","min_version":"18.0","max_version":"18.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":null},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":"False","19.0":null}},{"key":"smtp_ssl_certificate_filename","default":"","help":"specify the SSL certificate used for authentication","min_version":"15.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":null,"14.0":null,"15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":null,"14.0":null,"15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"smtp_ssl_private_key_filename","default":"","help":"specify the SSL private key used for authentication","min_version":"15.0","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":null,"14.0":null,"15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":null,"14.0":null,"15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"transient_age_limit","default":"1.0","help":"Time limit (decimal value in hours) records created with a TransientModel (mostly wizard) are kept in the database. Default to 1 hour.","min_version":"14.0","type":"float","in_core":true,"in_overlay":false,"trobz":false,"core_default":"1.0","versions":{"13.0":null,"14.0":"1.0","15.0":"1.0","16.0":"1.0","17.0":"1.0","18.0":"1.0","19.0":"1.0"},"core_versions":{"13.0":null,"14.0":"1.0","15.0":"1.0","16.0":"1.0","17.0":"1.0","18.0":"1.0","19.0":"1.0"}},{"key":"upgrade_path","default":"","help":"specify an additional upgrade path.","type":"str","in_core":true,"in_overlay":false,"trobz":false,"core_default":"","versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""},"core_versions":{"13.0":"","14.0":"","15.0":"","16.0":"","17.0":"","18.0":"","19.0":""}},{"key":"websocket_keep_alive_timeout","default":"3600","min_version":"16.0","type":"int","in_core":true,"in_overlay":false,"trobz":false,"core_default":"3600","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"3600","17.0":"3600","18.0":"3600","19.0":"3600"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"3600","17.0":"3600","18.0":"3600","19.0":"3600"}},{"key":"websocket_rate_limit_burst","default":"10","min_version":"16.0","type":"int","in_core":true,"in_overlay":false,"trobz":false,"core_default":"10","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"10","17.0":"10","18.0":"10","19.0":"10"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"10","17.0":"10","18.0":"10","19.0":"10"}},{"key":"websocket_rate_limit_delay","default":"0.2","min_version":"16.0","type":"float","in_core":true,"in_overlay":false,"trobz":false,"core_default":"0.2","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"0.2","17.0":"0.2","18.0":"0.2","19.0":"0.2"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"0.2","17.0":"0.2","18.0":"0.2","19.0":"0.2"}},{"key":"with_demo","default":"False","help":"don't install demo data in new databases (default)","min_version":"19.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":null,"17.0":null,"18.0":null,"19.0":"False"}},{"key":"x_sendfile","default":"False","help":"Activate X-Sendfile (apache) and X-Accel-Redirect (nginx) HTTP response header to delegate the delivery of large files (assets/attachments) to the web server.","min_version":"16.0","type":"bool","in_core":true,"in_overlay":false,"trobz":false,"core_default":"False","versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"False","17.0":"False","18.0":"False","19.0":"False"},"core_versions":{"13.0":null,"14.0":null,"15.0":null,"16.0":"False","17.0":"False","18.0":"False","19.0":"False"}}]}</script>
+<script>/* Shared helpers for the three odoo-config pages.
+   Schema data is exported from odoo-config's load_schema(); values are
+   already rendered with the CLI's own _fmt(), so they are plain strings. */
+
+const OC = (() => {
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const vnum = (v) => { const m = /(\d+(?:\.\d+)?)/.exec(String(v || "")); return m ? parseFloat(m[1]) : null; };
+  const sectionOf = (o) => o.section || "options";
+  const presentIn = (o, v) => o.versions[v] !== null;
+  // Options that exist in no supported version (Odoo <= 11 networking, logrotate).
+  const isLegacy = (o) => Object.values(o.versions).every((x) => x === null);
+
+  function rangeLabel(o) {
+    const lo = o.min_version, hi = o.max_version;
+    if (lo && hi) return lo === hi ? `${lo} only` : `${lo} – ${hi}`;
+    if (lo) return `${lo}+`;
+    if (hi) return `≤ ${hi}`;
+    return "all";
+  }
+
+  function badges(o, opts = {}) {
+    const out = [];
+    if (opts.section !== false && sectionOf(o) !== "options") out.push(`<span class="b b-sec">${esc(sectionOf(o))}</span>`);
+    if (o.trobz) out.push(`<span class="b b-trobz" title="odoo-config adds this option or sets its own default">custom</span>`);
+    if (o.mandatory) out.push(`<span class="b b-mand" title="Written even if you don't set it (default output format: explicit)">mandatory</span>`);
+    if (o.edition === "enterprise") out.push(`<span class="b b-ent" title="Only written for Enterprise (--enterprise / -E)">enterprise</span>`);
+    if (isLegacy(o)) out.push(`<span class="b b-legacy" title="Only valid before Odoo 13.0">legacy</span>`);
+    return out.join("");
+  }
+
+  // Colour an odoo.conf text. Works line by line on already-rendered text.
+  function iniHtml(text) {
+    return text.split("\n").map((line) => {
+      if (/^\[.*\]$/.test(line)) return `<span class="s">${esc(line)}</span>`;
+      if (/^;/.test(line)) return `<span class="c">${esc(line)}</span>`;
+      const i = line.indexOf(" = ");
+      if (i > 0) return `<span class="k">${esc(line.slice(0, i))}</span> = <span class="v">${esc(line.slice(i + 3))}</span>`;
+      return esc(line);
+    }).join("\n");
+  }
+
+  /* Port of odoo_config.schema build() / render() / resolve_given() and
+     main._instance_dir_defaults(). Returns the conf text plus, per line, where
+     the value came from, so the UI can annotate it. */
+  function instanceDirDefaults(dir) {
+    if (!dir) return {};
+    // Normalise like Python's PurePosixPath: drop empty and "." parts; keep a root of
+    // exactly two slashes, fold any other run of leading slashes into one.
+    const lead = (/^\/+/.exec(dir) || [""])[0];
+    const root = lead.length === 2 ? "//" : lead ? "/" : "";
+    const parts = dir.split("/").filter((p) => p && p !== ".");
+    const j = (p) => root + [...parts, p].join("/");
+    return { data_dir: j("var/storage"), logfile: j("log/server.log"), sentry_odoo_dir: j("odoo") };
+  }
+
+  function buildConf(schema, presets, { version, preset, enterprise, format, instanceDir, overrides }) {
+    const origin = {};
+    const given = {};
+    const put = (vals, src) => { for (const [k, v] of Object.entries(vals)) { given[k] = v; origin[k] = src; } };
+    if (preset) put(presets[preset] || {}, "preset");
+    put(instanceDirDefaults(instanceDir), "instance-dir");
+    put(Object.fromEntries(overrides || []), "override");
+
+    const valid = (o) => !(o.edition === "enterprise" && !enterprise) && presentIn(o, version);
+    const out = new Map();
+    for (const o of schema) {
+      if (!valid(o)) continue;
+      if (o.key in given) out.set(o.key, given[o.key]);
+      else if (format === "bare" || (format === "explicit" && !o.mandatory)) continue;
+      else { out.set(o.key, o.versions[version]); origin[o.key] = "default"; }
+    }
+    const byKey = Object.fromEntries(schema.map((o) => [o.key, o]));
+    for (const [k, v] of Object.entries(given)) {
+      if (!out.has(k) && !byKey[k]) { out.set(k, v); origin[k] = "unknown"; }
+    }
+
+    const groups = new Map([["options", []]]);
+    for (const [k, v] of out) {
+      const sec = (byKey[k] && byKey[k].section) || "options";
+      if (!groups.has(sec)) groups.set(sec, []);
+      groups.get(sec).push([k, v]);
+    }
+    const lines = [];
+    for (const [sec, items] of groups) {
+      if (lines.length) lines.push({ text: "" });
+      lines.push({ text: `[${sec}]` });
+      for (const [k, v] of items) {
+        const o = byKey[k] || {};
+        if (o.comment) lines.push({ text: `; ${o.comment}`, key: k, comment: true, origin: origin[k] });
+        let line = `${k} = ${v}`;
+        if (o.commented && !(k in given)) line = "; " + line;
+        lines.push({ text: line, key: k, origin: origin[k] });
+      }
+    }
+    return { text: lines.map((l) => l.text).join("\n") + "\n", lines, count: out.size };
+  }
+
+  async function copy(text, btn) {
+    const label = btn.textContent;
+    try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+    catch { btn.textContent = "Select and copy manually"; }
+    setTimeout(() => { btn.textContent = label; }, 1400);
+  }
+
+  const data = typeof document !== "undefined" ? JSON.parse(document.getElementById("schema-data").textContent) : null;
+  if (data) {
+    const s = data.source;
+    document.querySelectorAll("[data-src]").forEach((el) => { el.textContent = `${s.repo} ${s.describe} (${s.commit})`; });
+    document.querySelectorAll("[data-count]").forEach((el) => { el.textContent = data.options.length; });
+    document.querySelectorAll("[data-sections]").forEach((el) => { el.textContent = new Set(data.options.map(sectionOf)).size; });
+    document.querySelectorAll("[data-versions]").forEach((el) => { el.textContent = data.versions.length; });
+    document.querySelectorAll("[data-vrange]").forEach((el) => { el.textContent = `${data.versions[0]} to ${data.versions[data.versions.length - 1]}`; });
+  }
+
+  return { data, esc, vnum, sectionOf, presentIn, isLegacy, rangeLabel, badges, iniHtml, buildConf, instanceDirDefaults, copy };
+})();
+
+if (typeof module !== "undefined") module.exports = OC;
+</script>
+<script>
+(() => {
+  const { data, esc, isLegacy, badges, vnum } = OC;
+  const V = data.versions, OPTS = data.options.filter((o) => !isLegacy(o));
+  const LEGACY = data.options.length - OPTS.length;
+  const st = { from: "16.0", to: "18.0", q: "", only: true, stock: false, ent: true };
+  const $ = (id) => document.getElementById(id);
+  // Stock mode: options.toml alone. Trobz-only options have no Odoo cells at all.
+  const NONE = Object.fromEntries(V.map((v) => [v, null]));
+  const cellsOf = (o) => (st.stock ? o.core_versions || NONE : o.versions);
+  const changes = (o) => { const c = cellsOf(o); return new Set(V.map((v) => c[v])).size > 1; };
+  $("n-var").textContent = OPTS.filter((o) => new Set(V.map((v) => o.versions[v])).size > 1).length;
+
+  for (const id of ["from", "to"]) $(id).innerHTML = V.map((v) => `<option>${v}</option>`).join("");
+  $("from").value = st.from; $("to").value = st.to;
+
+  // First version where anything happens to the option, for a timeline-like order.
+  const firstEvent = (o) => { const c = cellsOf(o); for (let i = 1; i < V.length; i++) if (c[V[i]] !== c[V[i - 1]]) return i; return 99; };
+
+  function migration() {
+    const a = st.from, b = st.to, list = OPTS.filter((o) => st.ent || o.edition !== "enterprise");
+    const added = [], removed = [], changed = [];
+    for (const o of list) {
+      const c = cellsOf(o), x = c[a], y = c[b];
+      if (x === null && y !== null) added.push(o);
+      else if (x !== null && y === null) removed.push(o);
+      else if (x !== null && x !== y) changed.push(o);
+    }
+    const same = a === b, back = vnum(a) > vnum(b);
+    $("sum").innerHTML = same ? `<span class="b b-legacy">Pick two different versions</span>` :
+      `<span class="b b-add">+${added.length} new</span><span class="b b-del">−${removed.length} removed</span><span class="b b-chg">${changed.length} default${changed.length === 1 ? "" : "s"} changed</span>${back ? `<span class="b b-legacy">downgrade</span>` : ""}`;
+    const v = (s) => (s === "" ? "∅" : esc(s));
+    const col = (title, color, items, fmt, empty) => `<div class="col"><h3><i style="background:${color}"></i>${title}</h3>${items.length ? `<ul>${items.map(fmt).join("")}</ul>` : `<p class="none">${empty}</p>`}</div>`;
+    $("cols").innerHTML = same ? "" :
+      col(`New in ${b}`, "var(--add)", added, (o) => `<li>${esc(o.key)} <span>= ${v(cellsOf(o)[b])}</span></li>`, "Nothing new.") +
+      col(`Gone in ${b}`, "var(--del)", removed, (o) => `<li>${esc(o.key)}${o.mandatory ? ` <span>(mandatory in ${a})</span>` : ""}</li>`, "Nothing removed.") +
+      col("Default changed", "var(--chg)", changed, (o) => `<li>${esc(o.key)} <span>${v(cellsOf(o)[a])} → ${v(cellsOf(o)[b])}</span></li>`, "No default changes.");
+  }
+
+  function matrix() {
+    const lo = Math.min(V.indexOf(st.from), V.indexOf(st.to)), hi = Math.max(V.indexOf(st.from), V.indexOf(st.to));
+    const inR = (i) => (i >= lo && i <= hi ? " inrange" : "");
+    const q = st.q.toLowerCase().replace(/[\s-]+/g, "_");
+    const list = OPTS.filter((o) => (st.ent || o.edition !== "enterprise") && (!st.only || changes(o)) && (!q || o.key.includes(q)))
+      .sort((x, y) => firstEvent(x) - firstEvent(y) || x.key.localeCompare(y.key));
+    const pool = OPTS.filter((o) => st.ent || o.edition !== "enterprise");
+    $("mx-h").innerHTML = `<tr><th class="k">Option</th>${V.map((v, i) => `<th class="${inR(i).trim()}">${v}</th>`).join("")}</tr>
+      <tr class="tot"><th class="k">options in this version</th>${V.map((v, i) => `<th class="${inR(i).trim()}">${pool.filter((o) => cellsOf(o)[v] !== null).length}</th>`).join("")}</tr>`;
+    $("mx-b").innerHTML = list.length ? list.map((o) => {
+      const c = cellsOf(o);
+      const key = `<td class="k"><div class="key">${esc(o.key)}</div><div class="badges">${badges(o)}</div></td>`;
+      if (st.stock && !o.core_versions) return `<tr>${key}<td class="c na notcore" colspan="${V.length}">Not an Odoo option. odoo-config adds it.</td></tr>`;
+      const tds = V.map((v, i) => {
+        const x = c[v], p = i ? c[V[i - 1]] : undefined;
+        let cls, txt = x === "" ? "∅" : esc(x ?? "");
+        if (x === null) { cls = p !== undefined && p !== null ? "del" : "na"; txt = cls === "del" ? "removed" : "·"; }
+        else if (i && p === null) cls = "add";
+        else if (i && p !== x) cls = "chg";
+        else cls = "same";
+        if (st.stock && x !== null && o.versions[v] !== x) cls += " ovr";
+        const tip = x === null ? `${o.key}: not in ${v}` : `${o.key} in ${v}: ${x === "" ? "(empty)" : x}${st.stock && o.versions[v] !== x ? ` · odoo-config writes ${o.versions[v] === "" ? "(empty)" : o.versions[v]}` : ""}`;
+        return `<td class="c ${cls}${inR(i)}" title="${esc(tip)}">${txt}</td>`;
+      }).join("");
+      return `<tr>${key}${tds}</tr>`;
+    }).join("") : `<tr><td class="empty" colspan="${V.length + 1}">No option matches. Clear the search or show all options.</td></tr>`;
+    $("mx-foot").textContent = `${list.length} of ${pool.length} options shown. ${LEGACY} legacy options that only exist before Odoo 13.0 are left out.`;
+    $("lg-ovr").hidden = !st.stock;
+  }
+
+  const render = () => { migration(); matrix(); };
+  $("from").addEventListener("change", (e) => { st.from = e.target.value; render(); });
+  $("to").addEventListener("change", (e) => { st.to = e.target.value; render(); });
+  $("q").addEventListener("input", (e) => { st.q = e.target.value.trim(); matrix(); });
+  $("only").addEventListener("change", (e) => { st.only = e.target.checked; matrix(); });
+  $("stock").addEventListener("change", (e) => { st.stock = e.target.checked; render(); });
+  $("ent").addEventListener("change", (e) => { st.ent = e.target.checked; render(); });
+  render();
+})();
+</script>
+</body>
+</html>

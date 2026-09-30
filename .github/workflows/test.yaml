@@ -28,3 +28,6 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Check web tools schema data is up to date
+        run: make tools-data-check
