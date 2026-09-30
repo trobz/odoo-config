@@ -3,6 +3,8 @@
 # supported odoo version set changes. Trobz customization is in
 # overlay.toml, merged on top at runtime (schema.load_schema).
 
+versions = ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0"]
+
 [options.addons_path]
 default = ""
 help = "specify additional addons paths (separated by commas)."

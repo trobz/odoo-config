@@ -68,3 +68,12 @@ demo: ## Render site-docs/demo.tape → site-docs/docs/demo.gif via Docker VHS
 		-v $(PWD)/site-docs:/vhs \
 		-v $(PWD):/src:ro \
 		ghcr.io/charmbracelet/vhs:latest demo.tape
+
+.PHONY: tools-data
+tools-data: ## Refresh the schema snapshot embedded in the 3 web tools
+	@echo "🚀 Refreshing web tools schema data"
+	@uv run python scripts/export_tools_data.py
+
+.PHONY: tools-data-check
+tools-data-check: ## Fail if the web tools' embedded schema is stale
+	@uv run python scripts/export_tools_data.py --check

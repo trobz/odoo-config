@@ -20,3 +20,9 @@ Trobz-specific overrides layered on top of Odoo defaults: preset
 definitions, per-version tweaks, and mandatory key baselines.
 
 [`overlay.toml` on GitHub](https://github.com/trobz/odoo-config/blob/main/odoo_config/overlay.toml)
+
+## Web tools
+
+The [option lookup, version matrix and config builder](../index.md) tools
+embed a snapshot of this schema for offline use. After editing either
+toml above, run `make tools-data` to refresh it (CI fails otherwise).
