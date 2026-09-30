@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.4.0 (2026-09-30)
+
+### Documentation
+
+- **site**: Add option lookup, version matrix and conf builder tools
+  ([`c49c1a0`](https://github.com/trobz/odoo-config/commit/c49c1a0ee70c458aeb4b5518e3e26379991ff6d7))
+
+### Features
+
+- **site**: Keep web tools schema data in sync with toml
+  ([`50760f9`](https://github.com/trobz/odoo-config/commit/50760f9677a1ab313eb8fd247db5c12a015cf67c))
+
+
 ## v0.3.0 (2026-06-26)
 
 ### Features
