@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.5.0 (2026-10-01)
+
+### Features
+
+- **site**: Web tools follow-up (rename, logo, navigation links)
+  ([`cd2a136`](https://github.com/trobz/odoo-config/commit/cd2a13647327cc63899cf072e00ecf37cbef785b))
+
+
 ## v0.4.0 (2026-09-30)
 
 ### Documentation
