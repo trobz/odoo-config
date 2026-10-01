@@ -1,6 +1,6 @@
 """Refresh the schema snapshot embedded in the 3 web tools.
 
-Each page under site-docs/docs/artifacts/ carries a `<script id="schema-data">`
+Each page under site-docs/docs/web-tools/ carries a `<script id="schema-data">`
 JSON copy of the merged option schema, so it works as a plain static page.
 Run `make tools-data` after editing odoo_config/options.toml or overlay.toml;
 `--check` exits 1 when a page is stale. The "source" stamp is ignored when
@@ -19,7 +19,7 @@ from odoo_config.schema import _fmt, _merge, _read_toml, canon, default_for, val
 ROOT = Path(__file__).resolve().parent.parent
 VERSIONS = _read_toml("options.toml")["versions"]
 PAGES = [
-    ROOT / f"site-docs/docs/artifacts/{slug}/index.html"
+    ROOT / f"site-docs/docs/web-tools/{slug}/index.html"
     for slug in ("odoo-option-lookup", "odoo-option-matrix", "odoo-conf-builder")
 ]
 BLOCK = re.compile(r'(?<=id="schema-data">)(.*?)(?=</script>)', re.DOTALL)

@@ -14,6 +14,7 @@ nav = [
     {Maintain = "maintain.md"},
   ]},
   {Reference = [{"CLI" = "CLI.md"}, {"Schema" = "reference/schema.md"}]},
+  {"Web tools" = "web-tools/index.md"},
 ]
 extra_css = [
   "stylesheets/hero.css",
@@ -27,6 +28,10 @@ path = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
 # Hero particle network animation — requires Three.js above
 [[project.extra_javascript]]
 path = "javascripts/hero-scene.js"
+
+# Web tools dropdown
+[[project.extra_javascript]]
+path = "javascripts/web-tools-menu.js"
 
 [project.theme]
 language = "en"
