@@ -23,6 +23,6 @@ definitions, per-version tweaks, and mandatory key baselines.
 
 ## Web tools
 
-The [option lookup, version matrix and config builder](../index.md) tools
-embed a snapshot of this schema for offline use. After editing either
-toml above, run `make tools-data` to refresh it (CI fails otherwise).
+The [web tools](../web-tools/index.md) embed a snapshot of this schema.
+After changing either toml above, run `make tools-data` to refresh it
+(CI fails otherwise).
