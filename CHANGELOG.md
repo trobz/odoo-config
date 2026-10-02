@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-10-02)
+
+### Documentation
+
+- **skills**: Add odoo-config-add-version skill
+  ([`8faab4a`](https://github.com/trobz/odoo-config/commit/8faab4ac8a6c325cc1dfb4915622077bbb4e9880))
+
+### Features
+
+- **schema**: Add Odoo 12.0 support
+  ([`4c13214`](https://github.com/trobz/odoo-config/commit/4c13214b9e5b8ccb61cf0cf6e071200ce546c7e7))
+
+- **schema**: Add Odoo 20.0 support
+  ([`b75f4c3`](https://github.com/trobz/odoo-config/commit/b75f4c3c9d7de596f0c052ac3b988f8947ac8e4c))
+
+
 ## v0.5.0 (2026-10-01)
 
 ### Features

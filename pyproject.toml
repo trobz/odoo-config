@@ -1,6 +1,6 @@
 [project]
 name = "odoo-config"
-version = "0.5.0"
+version = "0.6.0"
 description = "Generate, compare and update Odoo config files per version."
 authors = [{name = "trobz", email = "contact@trobz.com"}]
 requires-python = ">=3.10"
