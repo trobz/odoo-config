@@ -3,7 +3,7 @@
 # supported odoo version set changes. Trobz customization is in
 # overlay.toml, merged on top at runtime (schema.load_schema).
 
-versions = ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0"]
+versions = ["12.0", "13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0"]
 
 [options.addons_path]
 default = ""
@@ -122,6 +122,7 @@ default = "127.0.0.1"
 help = "Listen interface address for HTTP services."
 
 [options.http_interface.by_version]
+"12.0" = ""
 "13.0" = ""
 "14.0" = ""
 "15.0" = ""
@@ -158,6 +159,7 @@ default = 65536
 help = "Maximum number of request to be processed per worker (default 65536)."
 
 [options.limit_request.by_version]
+"12.0" = 8192
 "13.0" = 8192
 "14.0" = 8192
 "15.0" = 8192
@@ -212,6 +214,11 @@ default = "info"
 default = ""
 help = "file where the server log will be stored"
 
+[options.logrotate]
+default = false
+help = "enable logfile rotation"
+max_version = "12.0"
+
 [options.longpolling_port]
 default = 8072
 help = "Listen port for the longpolling HTTP service"
@@ -227,6 +234,7 @@ help = "Deprecated alias to the transient-age-limit option"
 max_version = "16.0"
 
 [options.osv_memory_age_limit.by_version]
+"12.0" = 1.0
 "13.0" = 1.0
 "14.0" = false
 "15.0" = false
@@ -237,6 +245,7 @@ default = 0
 help = "Force a limit on the maximum number of records kept in the virtual osv_memory tables. By default there is no limit."
 
 [options.osv_memory_count_limit.by_version]
+"12.0" = false
 "13.0" = false
 "14.0" = false
 "15.0" = false
@@ -325,6 +334,7 @@ min_version = "20.0"
 [options.upgrade_path]
 default = ""
 help = "specify an additional upgrade path."
+min_version = "13.0"
 
 [options.websocket_keep_alive_timeout]
 default = 3600

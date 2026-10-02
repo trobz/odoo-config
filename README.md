@@ -40,7 +40,7 @@ The schema is two files, merged at runtime by `schema.load_schema()`:
 - **[`odoo_config/options.toml`](odoo_config/options.toml)** — the *odoo
   standard*: option set, defaults, version availability (`min`/`max_version`)
   and per-version default drift (`by_version`), mined from Odoo's
-  `tools/config.py` across 13.0–20.0. It is **generated** (a vendored snapshot,
+  `tools/config.py` across 12.0–20.0. It is **generated** (a vendored snapshot,
   like a lockfile) — do not edit by hand. Regenerate it only when the supported
   odoo version set changes:
 

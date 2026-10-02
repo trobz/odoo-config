@@ -92,7 +92,7 @@ mandatory = true
 max_version = "9.0"
 
 # Modern networking. Version bounds for these are derived by the generator from
-# Odoo's config.py (present 13-20); only the pre-13 legacy options above need
+# Odoo's config.py (present 12-20); only the pre-12 legacy options above need
 # hand-set bounds, since the miner can't see versions it has no checkout for.
 [options.http_interface]
 default = ""
@@ -138,7 +138,6 @@ mandatory = true
 [options.logrotate]
 default = "False"
 mandatory = true
-max_version = "11.0"
 
 [options.log_level]
 default = "debug_rpc"
