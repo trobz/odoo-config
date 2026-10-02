@@ -13,11 +13,11 @@ fixed: one numeric version directory per supported version, each holding
 `odoo/tools/config.py`:
 
     <odoo-root>/
+    ├── 12.0/odoo/tools/config.py
     ├── 13.0/odoo/tools/config.py
-    ├── 14.0/odoo/tools/config.py
-    └── ...  (through 19.0)
+    └── ...  (through 20.0)
 
-Usage: python scripts/build_schema.py [--odoo PATH] [--versions 13.0,14.0,...]
+Usage: python scripts/build_schema.py [--odoo PATH] [--versions 12.0,13.0,...]
 """
 
 import argparse
@@ -41,7 +41,7 @@ _BINOPS = {
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "odoo_config" / "options.toml"
 
-DEFAULT_VERSIONS = ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0"]
+DEFAULT_VERSIONS = ["12.0", "13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0"]
 
 # CLI-only / operational dests Odoo never persists as config values.
 SKIP = {
