@@ -125,7 +125,7 @@ def _generate(ctx, sources, secmap):
 @app.command(context_settings=_EXTRA)
 def create(
     ctx: typer.Context,
-    version: Annotated[str, typer.Option("--version", help="Target Odoo version, e.g. 19.0")],
+    version: Annotated[str, typer.Option("--version", help="Target Odoo version, e.g. 20.0")],
     config: ConfigOpt = Path("odoo.conf"),
     preset: PresetOpt = None,
     instance_dir: InstanceDirOpt = None,

@@ -37,7 +37,7 @@ Continue to [Config](config.md) for the full reference.
 
 Two files shipped with the package drive everything:
 
-- **Options**: every key Odoo accepts across versions 13.0 to 19.0,
+- **Options**: every key Odoo accepts across versions 13.0 to 20.0,
   with types, defaults, and version availability.
 - **Overlay**: the Trobz-specific layer of preset definitions,
   per-version tweaks, and mandatory key baselines (e.g. `production`).

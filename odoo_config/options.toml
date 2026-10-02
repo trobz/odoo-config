@@ -3,7 +3,7 @@
 # supported odoo version set changes. Trobz customization is in
 # overlay.toml, merged on top at runtime (schema.load_schema).
 
-versions = ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0"]
+versions = ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0"]
 
 [options.addons_path]
 default = ""
@@ -62,6 +62,11 @@ min_version = "18.0"
 default = "prefer"
 help = "specify the database ssl connection mode (see PostgreSQL documentation)"
 
+[options.db_system]
+default = "postgres"
+help = "specify the database for shared system operations like bus and maintenance"
+min_version = "20.0"
+
 [options.db_template]
 default = "template0"
 help = "specify a custom database template to create a new database"
@@ -103,12 +108,17 @@ default = 8072
 help = "Listen port for the gevent worker"
 min_version = "16.0"
 
+[options.gevent_workers]
+default = 1
+help = "Specify the number of gevent workers in prefork mode. (requires SO_REUSEPORT)"
+min_version = "20.0"
+
 [options.http_enable]
 default = true
 help = "Disable the HTTP and Longpolling services entirely"
 
 [options.http_interface]
-default = "0.0.0.0"
+default = "127.0.0.1"
 help = "Listen interface address for HTTP services."
 
 [options.http_interface.by_version]
@@ -119,6 +129,7 @@ help = "Listen interface address for HTTP services."
 "17.0" = ""
 "18.0" = ""
 "19.0" = "0.0.0.0"
+"20.0" = "127.0.0.1"
 
 [options.http_port]
 default = 8069
@@ -154,6 +165,7 @@ help = "Maximum number of request to be processed per worker (default 65536)."
 "17.0" = 65536
 "18.0" = 65536
 "19.0" = 65536
+"20.0" = 65536
 
 [options.limit_time_cpu]
 default = 60
@@ -175,6 +187,11 @@ min_version = "16.0"
 [options.list_db]
 default = true
 help = "Disable the ability to obtain or view the list of databases. Also disable access to the database manager and selector, so be sure to set a proper --database parameter first"
+
+[options.log_config]
+default = ""
+help = "JSON logging configuration file, in dictconfig format (https://docs.python.org/3/library/logging.config.html#logging-config-dictschema)."
+min_version = "16.0"
 
 [options.log_db]
 default = ""
@@ -227,6 +244,7 @@ help = "Force a limit on the maximum number of records kept in the virtual osv_m
 "17.0" = 0
 "18.0" = 0
 "19.0" = 0
+"20.0" = 0
 
 [options.pg_path]
 default = ""
@@ -250,8 +268,7 @@ help = "Comma-separated list of server-wide modules."
 [options.skip_auto_install]
 default = false
 help = "skip the automatic installation of modules marked as auto_install"
-min_version = "18.0"
-max_version = "18.0"
+min_version = "17.0"
 
 [options.smtp_password]
 default = ""
@@ -285,7 +302,7 @@ help = "specify the SMTP username for sending email"
 
 [options.syslog]
 default = false
-help = "Send the log to the syslog server"
+help = "Send the log to the syslog server (deprecated)"
 
 [options.transient_age_limit]
 default = 1.0
@@ -299,6 +316,11 @@ max_version = "18.0"
 [options.unaccent]
 default = false
 help = "Try to enable the unaccent extension when creating new databases."
+
+[options.unsafe_policy]
+default = "log"
+help = "Policy if an unsafe object is detected during arbitrary code execution - disable: No action taken - log: Log a warning with unsafe object information - raise: Raise an exception (BaseException) - terminate: Terminate the current worker process"
+min_version = "20.0"
 
 [options.upgrade_path]
 default = ""

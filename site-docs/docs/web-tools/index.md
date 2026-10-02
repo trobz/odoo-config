@@ -11,7 +11,7 @@ needed.
 ## Option lookup
 
 Every option odoo-config knows about, with its default in each Odoo
-version from 13.0 to 19.0 and the Trobz-tuned values on top.
+version from 13.0 to 20.0 and the Trobz-tuned values on top.
 
 [Open the option lookup](odoo-option-lookup/)
 
