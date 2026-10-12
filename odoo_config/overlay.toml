@@ -157,9 +157,18 @@ comment = "Some modules abort loading if server_environment running_env is unset
 default = 4
 mandatory = true
 
+# OCA server-tools module_change_auto_install (12.0, 14.0+; none for 13.0)
+# rewrites manifest auto_install flags at load time, see the section below.
+# Needs OCA server-tools on the addons path, else Odoo logs a load error at
+# startup. "8.0" keeps pre-12.0 versions on the plain core default.
 [options.server_wide_modules]
-default = "base,web"
 mandatory = true
+
+[options.server_wide_modules.by_version]
+"8.0" = "base,web"
+"12.0" = "base,web,module_change_auto_install"
+"13.0" = "base,web"
+"14.0" = "base,web,module_change_auto_install"
 
 [options.max_cron_threads]
 default = 1
@@ -302,6 +311,22 @@ edition = "enterprise"
 mandatory = true
 default = "root:0"
 section = "queue_job"
+
+# OCA module_change_auto_install: keep IAP and other unwanted auto-installed
+# modules out, and auto-install disable_odoo_online (OCA server-brand) on every
+# new database. Still rendered on 13.0, where nothing reads it (module not loaded).
+# See https://internal.trobz.com/blog/odoo-community-avoid-iap-and-unwanted-auto-installed-modules/
+[options.modules_disabled]
+default = "iap,iap_mail,iap_crm,partner_autocomplete,crm_iap_enrich,crm_iap_mine,sms,calendar_sms,crm_sms,project_sms,snailmail,mail_bot,privacy_lookup,base_install_request,base_import_module"
+mandatory = true
+section = "module_change_auto_install"
+min_version = "12.0"
+
+[options.modules_enabled]
+default = "disable_odoo_online"
+mandatory = true
+section = "module_change_auto_install"
+min_version = "12.0"
 
 # Presets layer concrete overrides on top of the version defaults.
 
