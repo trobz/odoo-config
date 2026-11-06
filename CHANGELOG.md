@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.7.0 (2026-11-06)
+
+### Features
+
+- **overlay**: Configure module_change_auto_install
+  ([#14](https://github.com/trobz/odoo-config/pull/14),
+  [`764e260`](https://github.com/trobz/odoo-config/commit/764e26033a5eebbe254b7ea0b82e57fe54cd5153))
+
+
 ## v0.6.0 (2026-10-02)
 
 ### Documentation
