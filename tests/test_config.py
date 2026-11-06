@@ -211,3 +211,17 @@ def test_read_conf_remote(monkeypatch):
     values, sections = read_conf("remote-host:/path/to/odoo.conf")
     assert values == {"workers": "8"}
     assert sections == {"workers": "options"}
+
+
+def test_module_change_auto_install():
+    schema, _ = load_schema()
+    swm = schema["server_wide_modules"]
+    assert default_for(swm, "19.0") == "base,web,module_change_auto_install"
+    assert default_for(swm, "13.0") == "base,web"  # no 13.0 release of the module
+    assert default_for(swm, "10.0") == "base,web"
+
+    text = render(build(schema, "19.0", "explicit", {}), schema, {})
+    assert "[module_change_auto_install]" in text
+    assert "modules_enabled = disable_odoo_online" in text
+    assert "iap,iap_mail," in text
+    assert "modules_disabled" not in build(schema, "10.0", "explicit", {})

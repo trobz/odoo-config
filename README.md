@@ -53,7 +53,7 @@ The schema is two files, merged at runtime by `schema.load_schema()`:
   `--versions 17.0,18.0,19.0,20.0`.
 
 - **[`odoo_config/overlay.toml`](odoo_config/overlay.toml)** — the *trobz layer*:
-  customized defaults, comments, sections (`ir.config_parameter`, `queue_job`),
+  customized defaults, comments, sections (`ir.config_parameter`, `queue_job`, `module_change_auto_install`),
   presets, and non-core extras (`sentry_*`, legacy networking, etc.). Edit this
   freely; changes take effect immediately, **no regeneration needed**.
 
