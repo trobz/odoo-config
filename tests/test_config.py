@@ -224,4 +224,11 @@ def test_module_change_auto_install():
     assert "[module_change_auto_install]" in text
     assert "modules_enabled = disable_odoo_online" in text
     assert "iap,iap_mail," in text
+    assert "modules_auto_install_" not in text
     assert "modules_disabled" not in build(schema, "10.0", "explicit", {})
+
+    # 12.0-18.0 branches read the legacy keys from [options]
+    text = render(build(schema, "18.0", "explicit", {}), schema, {})
+    assert "[module_change_auto_install]" not in text
+    assert "modules_auto_install_enabled = disable_odoo_online" in text
+    assert "modules_auto_install_disabled = iap,iap_mail," in text
