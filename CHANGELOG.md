@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.7.1 (2026-11-09)
+
+### Bug Fixes
+
+- **overlay**: Use legacy auto-install keys on 12.0-18.0
+  ([`73e01a0`](https://github.com/trobz/odoo-config/commit/73e01a01d55026fae438c1487fa6acd05f2840f1))
+
+
 ## v0.7.0 (2026-11-06)
 
 ### Features
