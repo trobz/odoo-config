@@ -314,19 +314,34 @@ section = "queue_job"
 
 # OCA module_change_auto_install: keep IAP and other unwanted auto-installed
 # modules out, and auto-install disable_odoo_online (OCA server-brand) on every
-# new database. Still rendered on 13.0, where nothing reads it (module not loaded).
+# new database. Key names depend on the module branch: 12.0-18.0 read
+# modules_auto_install_* from [options], 19.0+ read modules_* from its own
+# [module_change_auto_install] section. Keep both lists in sync.
+# Still rendered on 13.0, where nothing reads it (module not loaded).
 # See https://internal.trobz.com/blog/odoo-community-avoid-iap-and-unwanted-auto-installed-modules/
+[options.modules_auto_install_disabled]
+default = "iap,iap_mail,iap_crm,partner_autocomplete,crm_iap_enrich,crm_iap_mine,sms,calendar_sms,crm_sms,project_sms,snailmail,mail_bot,privacy_lookup,base_install_request,base_import_module"
+mandatory = true
+min_version = "12.0"
+max_version = "18.0"
+
+[options.modules_auto_install_enabled]
+default = "disable_odoo_online"
+mandatory = true
+min_version = "12.0"
+max_version = "18.0"
+
 [options.modules_disabled]
 default = "iap,iap_mail,iap_crm,partner_autocomplete,crm_iap_enrich,crm_iap_mine,sms,calendar_sms,crm_sms,project_sms,snailmail,mail_bot,privacy_lookup,base_install_request,base_import_module"
 mandatory = true
 section = "module_change_auto_install"
-min_version = "12.0"
+min_version = "19.0"
 
 [options.modules_enabled]
 default = "disable_odoo_online"
 mandatory = true
 section = "module_change_auto_install"
-min_version = "12.0"
+min_version = "19.0"
 
 # Presets layer concrete overrides on top of the version defaults.
 
