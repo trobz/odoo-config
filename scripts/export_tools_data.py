@@ -61,6 +61,9 @@ def build_data():
         "source": {"repo": "trobz/odoo-config", "commit": commit.strip(), "describe": f"v{version('odoo-config')}"},
         "versions": VERSIONS,
         "presets": {name: {k: _fmt(v) for k, v in p.items()} for name, p in overlay.get("presets", {}).items()},
+        "preset_hints": {
+            name: {k: _fmt(v) for k, v in h.items()} for name, h in overlay.get("preset_hints", {}).items()
+        },
         "options": options,
     }
 
