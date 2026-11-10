@@ -67,6 +67,20 @@ def load_schema():
     return _merge(core, overlay["options"]), overlay.get("presets", {})
 
 
+def load_preset_hints():
+    """Return the overlay's preset hints: {preset: {key: value to switch to later}}."""
+    return _read_toml("overlay.toml").get("preset_hints", {})
+
+
+def resolve_hints(hints, preset):
+    """Merge the hints of the selected (comma-separated) presets, later ones winning."""
+    out = {}
+    for name in str(preset or "").split(","):
+        out.update(hints.get(name.strip(), {}))
+
+    return out
+
+
 def canon(value):
     """Normalise a value for comparison: bool casing and typed/string form.
 
@@ -232,9 +246,14 @@ def _fmt(value):
     return str(value)
 
 
-def render(built, schema, given, secmap=None):
-    """Render a resolved option map back to odoo.conf text, grouped by section."""
+def render(built, schema, given, secmap=None, hints=None):
+    """Render a resolved option map back to odoo.conf text, grouped by section.
+
+    `hints` maps keys to a value to switch to later by hand (e.g. production
+    cron threads at go live): it is rendered commented above the active line.
+    """
     secmap = secmap or {}
+    hints = hints or {}
     grouped = {"options": []}
     for key, value in built.items():
         section = schema.get(key, {}).get("section") or secmap.get(key, "options")
@@ -250,6 +269,9 @@ def render(built, schema, given, secmap=None):
             meta = schema.get(key, {})
             if meta.get("comment"):
                 lines.append(f"; {meta['comment']}")
+
+            if key in hints and canon(hints[key]) != canon(value):
+                lines.append(f"; {key} = {_fmt(hints[key])}")
 
             line = f"{key} = {_fmt(value)}"
             if meta.get("commented") and key not in given:

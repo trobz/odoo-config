@@ -61,6 +61,12 @@ The schema is two files, merged at runtime by `schema.load_schema()`:
   quoted in TOML so the dot is treated as part of the name, not a sub-table separator:
   `"ribbon.name" = ""` — not `ribbon.name = ""`.
 
+  **Preset hints** (`[preset_hints.<preset>]`) hold values to switch to by hand
+  later. `create`/`update --preset` renders each one as a commented line just
+  above the active key, unless the value already matches. The production preset
+  uses it for cron: it ships `max_cron_threads = 0` so no scheduled action runs
+  before go live, with `; max_cron_threads = 2` above it for the TPM to apply.
+
 Overlay values win. A pinned overlay `default` forces that value on every
 version (the mined `by_version` is dropped); to keep per-version trobz values,
 add a `[options.<key>.by_version]` table in the overlay.
