@@ -6,11 +6,13 @@ from odoo_config.schema import (
     drop_defaults,
     drop_outdated,
     explain_rows,
+    load_preset_hints,
     load_schema,
     overlay_overrides,
     read_conf,
     render,
     resolve_given,
+    resolve_hints,
     valid_for_version,
 )
 
@@ -90,8 +92,27 @@ def test_render_round_trip():
     given = resolve_given(presets, "production", [{"db_password": "secret"}], {}, {})
     text = render(build(schema, "19.0", "explicit", given), schema, given)
     assert "[options]" in text
-    assert "max_cron_threads = 2" in text
+    assert "max_cron_threads = 0" in text  # no scheduled actions until go live
     assert "db_password = secret" in text
+
+
+def test_render_preset_hint():
+    schema, presets = load_schema()
+    hints = resolve_hints(load_preset_hints(), "production")
+    assert hints == {"max_cron_threads": 2}
+
+    given = resolve_given(presets, "production", [], {}, {})
+    lines = render(build(schema, "19.0", "explicit", given), schema, given, hints=hints).splitlines()
+    active = lines.index("max_cron_threads = 0")
+    assert lines[active - 1] == "; max_cron_threads = 2"  # hint just above the active line
+
+    # already switched (e.g. --from a live config): no redundant hint
+    given = resolve_given(presets, "production", [{"max_cron_threads": "2"}], {}, {})
+    text = render(build(schema, "19.0", "explicit", given), schema, given, hints=hints)
+    assert "; max_cron_threads = 2" not in text
+    assert "max_cron_threads = 2" in text
+
+    assert resolve_hints(load_preset_hints(), "staging") == {}
 
 
 def test_default_for_by_version():
@@ -153,7 +174,7 @@ def test_compare_columns():
 
     assert set(cols) == {"a.conf", "19.0+production"}
     assert cols["a.conf"] == {"workers": "8"}  # file shown as written, not padded
-    assert cols["19.0+production"]["max_cron_threads"] == 2  # preset overlay
+    assert cols["19.0+production"]["is_production_instance"] == "True"  # preset overlay
     assert "gevent_port" in cols["19.0+production"]  # full version defaults
     assert "longpolling_port" not in cols["19.0+production"]  # version-filtered
 

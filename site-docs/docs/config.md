@@ -13,7 +13,7 @@ Generate a new config file for a target Odoo version.
 # Minimal: mandatory keys only
 odoo-config create --version 17.0
 
-# Production preset (suppresses ribbon, tightens cron)
+# Production preset (suppresses ribbon, no cron until go live)
 odoo-config create --version 17.0 --preset production
 
 # Derive data_dir / logfile / sentry_odoo_dir from instance home

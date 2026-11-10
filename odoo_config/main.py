@@ -14,11 +14,13 @@ from .schema import (
     drop_defaults,
     drop_outdated,
     explain_rows,
+    load_preset_hints,
     load_schema,
     overlay_overrides,
     read_conf,
     render,
     resolve_given,
+    resolve_hints,
 )
 
 app = typer.Typer(help=__doc__, no_args_is_help=True)
@@ -119,7 +121,8 @@ def _generate(ctx, sources, secmap):
     given = resolve_given(presets, p["preset"], [instance_dir_vals, sources], env, overrides)
     built = build(schema, p["version"], p["output_format"], given, p.get("enterprise", False))
     # ctx.params holds click's pre-conversion values, so config is still a str.
-    Path(p["config"]).write_text(render(built, schema, given, secmap))
+    hints = resolve_hints(load_preset_hints(), p["preset"])
+    Path(p["config"]).write_text(render(built, schema, given, secmap, hints))
 
 
 @app.command(context_settings=_EXTRA)

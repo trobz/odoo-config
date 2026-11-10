@@ -173,7 +173,7 @@ mandatory = true
 [options.max_cron_threads]
 default = 1
 mandatory = true
-comment = "0 disables scheduled actions (non-production); 2 on production."
+comment = "0 disables scheduled actions. Production ships with 0 until go live, then switch to 2."
 
 [options.limit_memory_hard]
 default = 2147483648
@@ -354,7 +354,13 @@ max_cron_threads = 0
 is_production_instance = "False"
 
 [presets.production]
-max_cron_threads = 2
+max_cron_threads = 0
 is_production_instance = "True"
 list_db = "False"
 "ribbon.name" = ""
+
+# Preset hints: values the TPM switches to by hand later, rendered as a
+# commented line just above the active one (skipped when they already match).
+
+[preset_hints.production]
+max_cron_threads = 2
