@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.8.0 (2026-11-10)
+
+### Features
+
+- **overlay**: No cron on production until go live
+  ([#16](https://github.com/trobz/odoo-config/pull/16),
+  [`5eaaed3`](https://github.com/trobz/odoo-config/commit/5eaaed34ece6bad7195526068af47de24e2936aa))
+
+- **web-tools**: Render preset hints in the conf builder
+  ([#16](https://github.com/trobz/odoo-config/pull/16),
+  [`5eaaed3`](https://github.com/trobz/odoo-config/commit/5eaaed34ece6bad7195526068af47de24e2936aa))
+
+
 ## v0.7.1 (2026-11-09)
 
 ### Bug Fixes
